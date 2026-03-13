@@ -8,6 +8,7 @@ function App() {
   return (
     <div className='App'>
       <header className='App-header'>
+        <h1>Welcome to my React App!</h1>
       <p>
         Name: [Nolasco, John Michael N.] <br />
         Email: [nolascojmn06@gmail.com ] <br />
