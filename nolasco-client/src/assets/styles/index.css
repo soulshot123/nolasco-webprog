@@ -1,0 +1,50 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=MedievalSharp&display=swap');
+@import "tailwindcss";
+
+/* Medieval Knight Portfolio Theme */
+:root {
+  --knight-gold: #D4AF37;
+  --knight-silver: #C0C0C0;
+  --knight-iron: #4A5568;
+  --knight-steel: #2D3748;
+  --knight-parchment: #F7F4E3;
+  --knight-ink: #2D1B0F;
+  --knight-wood: #8B4513;
+  --knight-velvet: #1A0D00;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Cinzel', serif;
+  background: linear-gradient(135deg, var(--knight-parchment) 0%, #EDE4D9 100%);
+  color: var(--knight-ink);
+}
+
+@layer base {
+  h1, h2, h3 { 
+    font-family: 'Cinzel', serif; 
+    font-weight: 700; 
+  }
+  h1 { font-weight: 900; letter-spacing: -0.02em; }
+}
+
+@layer utilities {
+  .knight-shadow { 
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3), 0 10px 10px -5px rgba(0,0,0,0.2); 
+  }
+  .knight-glow { 
+    box-shadow: 0 0 30px rgba(212, 175, 55, 0.4); 
+  }
+  .parchment-bg { 
+    background: linear-gradient(145deg, #F7F4E3, #EDE4D9); 
+  }
+  .iron-border { border-color: var(--knight-iron); }
+  .gold-accent { 
+    color: var(--knight-gold); 
+    border-color: var(--knight-gold); 
+  }
+  .ornate-border {
+    border-image: linear-gradient(45deg, var(--knight-gold), var(--knight-silver)) 1;
+  }
+}
