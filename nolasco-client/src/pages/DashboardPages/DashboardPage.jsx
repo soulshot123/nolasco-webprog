@@ -1,13 +1,13 @@
-import React, { useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import React from 'react'
 import { BarChart } from '@mui/x-charts/BarChart';
 
 import { DataGrid } from '@mui/x-data-grid';
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
-
-import { Gauge } from '@mui/x-data-grid';
-import { Typrography, Card, CardContent, Button, Typography } from '@mui/material';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
+import { Gauge } from '@mui/x-charts/Gauge';
 import { PieChart } from '@mui/x-charts/PieChart';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -54,8 +54,6 @@ const rows = [
     { id: 9, lastName: 'Roxie', firstName: 'Harvey', age: 65 },
 ];
 function DashboardPage() {
-    const location = useLocation();
-
     return (
         <>
             <Typography variant="h4" gutterBottom>

@@ -1,13 +1,13 @@
-import react, { useState } from 'react';
-import { Outlet, Link, useLocation, useNavigate} from 'react-router-dom';
-import { Box, Stack, Typography, Card, CardContent } from '@mui/material';
+import React, { useState } from 'react';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { useTheme, styled, alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import MuiDrawer from '@mui/material/Drawer';
 import MuiAppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
 import CssBaseline from '@mui/material/CssBaseline';
-import Typography from '@mui/material';
+import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -15,6 +15,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -22,7 +23,17 @@ import PeopleIcon from '@mui/icons-material/People';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import Button from '@mui/material/Button';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
-import ArticleIcon from '@mui/icons-material/Article';
+import InputBase from '@mui/material/InputBase';
+import Paper from '@mui/material/Paper';
+
+function getIcon(label) {
+    switch(label) {
+        case 'Dashboard': return <DashboardIcon />;
+        case 'Reports': return <AssessmentIcon />;
+        case 'Users': return <PeopleIcon />;
+        default: return <DashboardIcon />;
+    }
+}
 
 const drawerWidth = 240;
 const dashboardNavItems = [
@@ -157,92 +168,84 @@ const DashLayout = () => {
         navigate('/');
     };
 
-    return (
-        <>
-            <Box sx={{ display: 'flex' }}>
-                <CssBaseline />
-                {/* AppBar */}
-                {/* <AppBar position="fixed" open={open}> */}
-                <AppBar position="fixed">
-                    <Toolbar>
-                        <IconButton
-                            color="inherit"
-                            aria-label="open drawer"
-                            // onclick={(open)}
-                            onClick={open ? handleDrawerClose : handleDrawerOpen}
-                            edge="start"
-                            // sx={{ marginRight: 5, ...(open && { display: 'none' }) }}
-                            sx={{ marginRight: 5, ...open }}
-                        >
-                            {open ? <menuOpenIcon /> : <MenuIcon />}
-                            </IconButton>
-                            <Typography
-                            variant="h6" 
-                            noWrap 
-                            component="div" 
-                            sx={{ flexGrow: 1 }}
-                        >   
-                            {pageTitle}
-                        </Typography>
-                        {/* <Search */}
-                        <Search>
-                            <SearchIconWrapper>
-                                <SearchIcon />
-                            </SearchIconWrapper>
-                            <StyledInputBase
-                                placeholder="Search…"
-                                inputProps={{ 'aria-label': 'search' }}
-                            />
-                        </Search>
-                        <Button color="inherit" variant="outlined" onClick={handleLogout}>
-                            Logout
-                        </Button>
-                    </Toolbar>
-                </AppBar>
-                {/* Drawer */}
-                <Drawer variant="permanent" open={open}>
-                    <DrawerHeader>
-                        <IconButton onClick={handleDrawerClose}>
-                            {theme.direction === 'rtl' ? ( 
-                                <ChevronRightIcon /> 
-                            ) : (
-                                <ChevronLeftIcon />
+return (
+        <Box sx={{ display: 'flex' }}>
+            <CssBaseline />
+            <AppBar position="fixed">
+                <Toolbar>
+                    <IconButton
+                        color="inherit"
+                        aria-label="open drawer"
+                        onClick={open ? handleDrawerClose : handleDrawerOpen}
+                        edge="start"
+                        sx={{ marginRight: 5, ...open }}
+                    >
+                        {open ? <MenuOpenIcon /> : <MenuIcon />}
+                    </IconButton>
+                    <Typography
+                        variant="h6" 
+                        noWrap 
+                        component="div" 
+                        sx={{ flexGrow: 1 }}
+                    >   
+                        {pageTitle}
+                    </Typography>
+                    <Search>
+                        <SearchIconWrapper>
+                            <SearchIcon />
+                        </SearchIconWrapper>
+                        <InputBase
+                            placeholder="Search…"
+                            inputProps={{ 'aria-label': 'search' }}
+                            sx={{ color: 'inherit' }}
+                        />
+                    </Search>
+                    <Button color="inherit" variant="outlined" onClick={handleLogout}>
+                        Logout
+                    </Button>
+                </Toolbar>
+            </AppBar>
+            <Drawer variant="permanent" open={open}>
+                <DrawerHeader>
+                    <IconButton onClick={handleDrawerClose}>
+                        {theme.direction === 'rtl' ? ( 
+                            <ChevronRightIcon /> 
+                        ) : (
+                            <ChevronLeftIcon />
                         )}
-                        </IconButton>
-                    </DrawerHeader>
-                    <Divider />
-                    {/* Drawer List */}
-                    <List>
-                        {dashboardNavItems.map(({ label, to, icon }) => (
-                            <ListItem key={to} disablePadding sx={{ display: 'block' }}>
-                                <ListItemButton
-                                    component={Link}
-                                    to={to}
-                                    selected={location.pathname === to}
-                                    sx={{
-                                        minHeight: 48,
-                                        px: 2.5,
-                                        justifyContent: open ? 'initial' : 'center',
-                                    }}
-                                >
-                                    <Icon />
+                    </IconButton>
+                </DrawerHeader>
+                <Divider />
+                <List>
+                    {dashboardNavItems.map(({ label, to }) => (
+                        <ListItem key={to} disablePadding sx={{ display: 'block' }}>
+                            <ListItemButton
+                                component={Link}
+                                to={to}
+                                selected={location.pathname === to}
+                                sx={{
+                                    minHeight: 48,
+                                    px: 2.5,
+                                    justifyContent: open ? 'initial' : 'center',
+                                }}
+                            >
+                                <ListItemIcon>
+                                    {getIcon(label)}
                                 </ListItemIcon>
-                                    <ListItemText
-                                        primary={label}
-                                        sx={{ opacity: open ? 1 : 0 }}
-                                    />
+                                <ListItemText
+                                    primary={label}
+                                    sx={{ opacity: open ? 1 : 0 }}
+                                />
                             </ListItemButton>
                         </ListItem>
                     ))}
                 </List>
             </Drawer>
-            <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+            <Box component="main" sx={{ flexGrow: 1, p: 3, mt: 8 }}>
                 <DrawerHeader />
-                {/* Content */}
                 <Outlet />
             </Box>
         </Box>
-        </>
     );
 };
 

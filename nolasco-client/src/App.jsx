@@ -1,12 +1,16 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Layout from './assets/layouts/Layout';
 import AuthLayout from './assets/layouts/AuthLayout';
+import DashLayout from './assets/layouts/DashLayout';
 import HomePage from './pages/LandingPages/HomePage';
 import AboutPage from './pages/LandingPages/AboutPage';
 import ArticleListPage from './pages/LandingPages/ArticleListPage';
 import ArticlePage from './pages/LandingPages/ArticlePage';
 import SignInPage from './pages/AuthPages/SignInPage';
 import SignUpPage from './pages/AuthPages/SignUpPage';
+import DashboardPage from './pages/DashboardPages/DashboardPage';
+import ReportsPage from './pages/DashboardPages/ReportsPage';
+import UsersPage from './pages/DashboardPages/UsersPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 const routes = [
@@ -44,6 +48,24 @@ const routes = [
             {
                 path: 'signup',
                 element: <SignUpPage />,
+            },
+        ],
+    },
+    {
+        path: '/dashboard',
+        element: <DashLayout />,
+        children: [
+            {
+                path: '',
+                element: <DashboardPage />,
+            },
+            {
+                path: 'reports',
+                element: <ReportsPage />,
+            },
+            {
+                path: 'users',
+                element: <UsersPage />,
             },
         ],
     },
