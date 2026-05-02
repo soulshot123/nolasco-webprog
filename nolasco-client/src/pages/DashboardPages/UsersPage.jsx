@@ -250,12 +250,12 @@ const columns = [
         headerName: 'Last Login',
         width: 150,
     },
-    {
+{
         field: 'actions',
         headerName: 'Actions',
         width: 120,
         sortable: false,
-        renderCell: (params) => (
+        renderCell: () => (
             <>
                 <IconButton size="small" color="primary">
                     <EditIcon />
