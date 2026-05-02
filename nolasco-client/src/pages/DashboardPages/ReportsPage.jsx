@@ -8,6 +8,148 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 
+// Medieval Knight Theme Colors
+const themeColors = {
+    gold: '#D4AF37',
+    silver: '#C0C0C0',
+    iron: '#4A5568',
+    steel: '#2D3748',
+    parchment: '#F7F4E3',
+    ink: '#2D1B0F',
+    velvet: '#1A0D00',
+    success: '#2E7D32',
+    increase: '#1B5E20',
+};
+
+// Styled Card Component for Theme
+const StyledCard = ({ children, goldAccent, ...props }) => (
+    <Card
+        {...props}
+        sx={{
+            background: 'linear-gradient(145deg, #F7F4E3, #EDE4D9)',
+            border: `2px solid ${themeColors.iron}`,
+            borderRadius: '8px',
+            position: 'relative',
+            overflow: 'visible',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: '-2px',
+                left: '-2px',
+                right: '-2px',
+                bottom: '-2px',
+                borderRadius: '10px',
+                border: goldAccent ? `2px solid ${themeColors.gold}` : 'none',
+                pointerEvents: 'none',
+            },
+            ...props.sx,
+        }}
+    >
+        <CardContent>{children}</CardContent>
+    </Card>
+);
+
+// Styled Typography
+const StyledTitle = ({ children, ...props }) => (
+    <Typography
+        {...props}
+        sx={{
+            fontFamily: "'Cinzel', serif",
+            fontWeight: 700,
+            color: themeColors.ink,
+            letterSpacing: '0.05em',
+            textTransform: 'uppercase',
+            borderBottom: `2px solid ${themeColors.gold}`,
+            paddingBottom: '8px',
+            marginBottom: '16px',
+            display: 'inline-block',
+            ...props.sx,
+        }}
+    >
+        {children}
+    </Typography>
+);
+
+// Styled Section Title
+const SectionTitle = ({ children, ...props }) => (
+    <Typography
+        variant="h5"
+        {...props}
+        sx={{
+            fontFamily: "'Cinzel', serif",
+            fontWeight: 600,
+            color: themeColors.iron,
+            marginTop: '24px',
+            marginBottom: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            '&::before': {
+                content: '"📜"',
+                color: themeColors.gold,
+                fontSize: '1.2em',
+            },
+            ...props.sx,
+        }}
+    >
+        {children}
+    </Typography>
+);
+
+// Stat Value Typography
+const StatValue = ({ children, ...props }) => (
+    <Typography
+        variant="h3"
+        {...props}
+        sx={{
+            fontFamily: "'Cinzel', serif",
+            fontWeight: 700,
+            color: themeColors.gold,
+            textShadow: '0 2px 4px rgba(0,0,0,0.2)',
+            ...props.sx,
+        }}
+    >
+        {children}
+    </Typography>
+);
+
+// Stat Label Typography
+const StatLabel = ({ children, ...props }) => (
+    <Typography
+        variant="overline"
+        {...props}
+        sx={{
+            fontFamily: "'Cinzel', serif",
+            fontWeight: 600,
+            letterSpacing: '0.15em',
+            color: themeColors.iron,
+            ...props.sx,
+        }}
+    >
+        {children}
+    </Typography>
+);
+
+// Change Indicator
+const ChangeIndicator = ({ change, positive = true, ...props }) => (
+    <Typography
+        variant="body2"
+        {...props}
+        sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            color: positive ? themeColors.success : '#C62828',
+            fontWeight: 600,
+            fontFamily: "'Cinzel', serif",
+            ...props.sx,
+        }}
+    >
+        {positive ? '▲' : '▼'} {change}
+    </Typography>
+);
+
 const barChartData = [
     { id: 'Jan', value: 2800 },
     { id: 'Feb', value: 3900 },
@@ -40,78 +182,218 @@ const lineChartXAxis = [
 
 function ReportsPage() {
     return (
-        <>
-            <Typography variant="h4" gutterBottom>
-                Reports & Analytics
-            </Typography>
+        <Box sx={{ 
+            background: 'linear-gradient(135deg, rgba(247,244,227,0.95) 0%, rgba(237,228,217,0.95) 100%)',
+            padding: '24px',
+            borderRadius: '12px',
+            border: `2px solid ${themeColors.iron}`,
+            boxShadow: 'inset 0 0 30px rgba(212,175,55,0.1)',
+        }}>
+            <StyledTitle variant="h4">
+                📜 Reports & Analytics 📜
+            </StyledTitle>
             
-            {/* Summary Cards */}
-            <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 4 }}>
-                <Card sx={{ flex: 1 }}>
+            {/* Summary Cards - Treasury Overview */}
+            <Stack 
+                direction={{ xs: 'column', md: 'row' }} 
+                spacing={3} 
+                sx={{ mb: 4 }}
+            >
+                <StyledCard sx={{ flex: 1 }} goldAccent>
                     <CardContent>
-                        <Typography variant="h6" color="primary">Total Revenue</Typography>
-                        <Typography variant="h4">$52,400</Typography>
-                        <Typography variant="body2" color="success.main">+15% from last month</Typography>
+                        <StatLabel>Treasury</StatLabel>
+                        <StatValue>$52,400</StatValue>
+                        <ChangeIndicator change="+15% from last month" positive />
                     </CardContent>
-                </Card>
-                <Card sx={{ flex: 1 }}>
+                </StyledCard>
+                <StyledCard sx={{ flex: 1 }}>
                     <CardContent>
-                        <Typography variant="h6" color="primary">Total Sales</Typography>
-                        <Typography variant="h4">38,450</Typography>
-                        <Typography variant="body2" color="success.main">+8% from last month</Typography>
+                        <StatLabel>Total Sales</StatLabel>
+                        <StatValue>38,450</StatValue>
+                        <ChangeIndicator change="+8% from last month" positive />
                     </CardContent>
-                </Card>
-                <Card sx={{ flex: 1 }}>
+                </StyledCard>
+                <StyledCard sx={{ flex: 1 }}>
                     <CardContent>
-                        <Typography variant="h6" color="primary">Conversion Rate</Typography>
-                        <Typography variant="h4">3.2%</Typography>
-                        <Typography variant="body2" color="success.main">+0.5% from last month</Typography>
+                        <StatLabel>Conversion Rate</StatLabel>
+                        <StatValue>3.2%</StatValue>
+                        <ChangeIndicator change="+0.5% from last month" positive />
                     </CardContent>
-                </Card>
+                </StyledCard>
             </Stack>
 
             {/* Bar Chart - Monthly Revenue */}
-            <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
-                Monthly Revenue
-            </Typography>
-            <Box sx={{ height: 300, width: '100%', mb: 4 }}>
+            <SectionTitle>Monthly Treasury Income</SectionTitle>
+            <Box sx={{ 
+                height: 320, 
+                width: '100%', 
+                mb: 4,
+                background: 'rgba(247,244,227,0.8)',
+                border: `1px solid ${themeColors.iron}`,
+                borderRadius: '8px',
+                p: 2,
+                boxShadow: 'inset 0 0 10px rgba(0,0,0,0.05)',
+            }}>
                 <BarChart
                     dataset={barChartData}
-                    xAxis={[{ scaleType: 'band', dataKey: 'id' }]}
-                    series={[{ dataKey: 'value', label: 'Revenue ($)' }]}
+                    xAxis={[{ 
+                        scaleType: 'band', 
+                        dataKey: 'id',
+                        tickLabelStyle: { fill: themeColors.ink, fontFamily: "'Cinzel', serif" },
+                        labelStyle: { fill: themeColors.ink, fontFamily: "'Cinzel', serif", fontWeight: 600 },
+                    }]}
+                    series={[{ 
+                        dataKey: 'value', 
+                        label: 'Revenue ($)',
+                        color: themeColors.gold,
+                    }]}
                     height={300}
+                    margin={{ top: 40, right: 40, bottom: 40, left: 60 }}
+                    sx={{
+                        '& .MuiCharts-axisLabel': {
+                            fill: themeColors.ink,
+                            fontFamily: "'Cinzel', serif",
+                        },
+                        '& .MuiCharts-tick': {
+                            fill: themeColors.ink,
+                        },
+                    }}
                 />
             </Box>
 
             {/* Pie Chart - Sales by Category */}
-            <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
-                Sales by Category
-            </Typography>
-            <Box sx={{ height: 300, width: '100%', mb: 4 }}>
-                <PieChart
-                    series={[
-                        {
-                            data: pieChartData,
-                            innerRadius: 60,
-                            outerRadius: 100,
-                        },
-                    ]}
-                    height={300}
-                />
-            </Box>
+            <SectionTitle>Distribution by Province</SectionTitle>
+            <Stack 
+                direction={{ xs: 'column', lg: 'row' }} 
+                spacing={3}
+                sx={{ mb: 4 }}
+            >
+                <Box sx={{ 
+                    flex: 1,
+                    background: 'rgba(247,244,227,0.8)',
+                    border: `1px solid ${themeColors.iron}`,
+                    borderRadius: '8px',
+                    p: 3,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    boxShadow: 'inset 0 0 10px rgba(0,0,0,0.05)',
+                }}>
+                    <PieChart
+                        series={[
+                            {
+                                data: pieChartData,
+                                innerRadius: 60,
+                                outerRadius: 100,
+                                colors: [
+                                    themeColors.gold,
+                                    themeColors.silver,
+                                    themeColors.iron,
+                                    themeColors.steel,
+                                ],
+                            },
+                        ]}
+                        height={280}
+                        width={320}
+                    />
+                </Box>
+                <Box sx={{ flex: 1 }}>
+                    <Stack spacing={2}>
+                        {pieChartData.map((item, index) => (
+                            <Box
+                                key={item.id}
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 2,
+                                    p: 2,
+                                    borderRadius: '8px',
+                                    border: `1px solid ${themeColors.silver}`,
+                                    background: 'linear-gradient(145deg, #F7F4E3, #EDE4D9)',
+                                }}
+                            >
+                                <Box
+                                    sx={{
+                                        width: 16,
+                                        height: 16,
+                                        borderRadius: '4px',
+                                        backgroundColor: [
+                                            themeColors.gold,
+                                            themeColors.silver,
+                                            themeColors.iron,
+                                            themeColors.steel,
+                                        ][index],
+                                        border: `1px solid ${themeColors.ink}`,
+                                    }}
+                                />
+                                <Typography sx={{ 
+                                    flex: 1,
+                                    fontFamily: "'Cinzel', serif",
+                                    fontWeight: 600,
+                                    color: themeColors.ink,
+                                }}>
+                                    {item.label}
+                                </Typography>
+                                <Typography sx={{ 
+                                    fontFamily: "'Cinzel', serif",
+                                    fontWeight: 700,
+                                    color: themeColors.gold,
+                                }}>
+                                    {item.value}
+                                </Typography>
+                            </Box>
+                        ))}
+                    </Stack>
+                </Box>
+            </Stack>
 
             {/* Line Chart - Revenue Trends */}
-            <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
-                Revenue Trends
-            </Typography>
-            <Box sx={{ height: 300, width: '100%', mb: 4 }}>
+            <SectionTitle>Revenue Expedition Trends</SectionTitle>
+            <Box sx={{ 
+                height: 320, 
+                width: '100%', 
+                mb: 4,
+                background: 'rgba(247,244,227,0.8)',
+                border: `1px solid ${themeColors.iron}`,
+                borderRadius: '8px',
+                p: 2,
+                boxShadow: 'inset 0 0 10px rgba(0,0,0,0.05)',
+            }}>
                 <LineChart
                     series={lineChartSeries}
                     xAxis={lineChartXAxis}
                     height={300}
+                    margin={{ top: 40, right: 40, bottom: 40, left: 60 }}
+                    colors={[themeColors.gold]}
+                    sx={{
+                        '& .MuiCharts-axisLabel': {
+                            fill: themeColors.ink,
+                            fontFamily: "'Cinzel', serif",
+                        },
+                        '& .MuiCharts-tick': {
+                            fill: themeColors.ink,
+                        },
+                    }}
                 />
             </Box>
-        </>
+
+            {/* Decorative Footer */}
+            <Box sx={{ 
+                textAlign: 'center', 
+                mt: 4, 
+                pt: 2,
+                borderTop: `1px solid ${themeColors.silver}`,
+            }}>
+                <Typography sx={{ 
+                    fontFamily: "'MedievalSharp', cursive",
+                    color: themeColors.gold,
+                    fontSize: '1.2em',
+                    letterSpacing: '0.2em',
+                }}>
+                    ⚜ Honor • Courage • Faith ⚜
+                </Typography>
+            </Box>
+        </Box>
     );
 }
 

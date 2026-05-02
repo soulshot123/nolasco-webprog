@@ -1,27 +1,114 @@
-import React from 'react'
+import React from 'react';
 import { BarChart } from '@mui/x-charts/BarChart';
-
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid } from '@mui/x-data-grid/DataGrid';
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
-import { Gauge } from '@mui/x-charts/Gauge';
 import { PieChart } from '@mui/x-charts/PieChart';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 
+// Medieval Knight Theme Colors
+const themeColors = {
+    gold: '#D4AF37',
+    silver: '#C0C0C0',
+    iron: '#4A5568',
+    steel: '#2D3748',
+    parchment: '#F7F4E3',
+    ink: '#2D1B0F',
+    velvet: '#1A0D00',
+};
+
+// Styled Card Component for Theme
+const StyledCard = ({ children, goldAccent, ...props }) => (
+    <Card
+        {...props}
+        sx={{
+            background: 'linear-gradient(145deg, #F7F4E3, #EDE4D9)',
+            border: `2px solid ${themeColors.iron}`,
+            borderRadius: '8px',
+            position: 'relative',
+            overflow: 'visible',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: '-2px',
+                left: '-2px',
+                right: '-2px',
+                bottom: '-2px',
+                borderRadius: '10px',
+                border: goldAccent ? `2px solid ${themeColors.gold}` : 'none',
+                pointerEvents: 'none',
+            },
+            ...props.sx,
+        }}
+    >
+        <CardContent>{children}</CardContent>
+    </Card>
+);
+
+// Styled Typography
+const StyledTitle = ({ children, ...props }) => (
+    <Typography
+        {...props}
+        sx={{
+            fontFamily: "'Cinzel', serif",
+            fontWeight: 700,
+            color: themeColors.ink,
+            letterSpacing: '0.05em',
+            textTransform: 'uppercase',
+            borderBottom: `2px solid ${themeColors.gold}`,
+            paddingBottom: '8px',
+            marginBottom: '16px',
+            display: 'inline-block',
+            ...props.sx,
+        }}
+    >
+        {children}
+    </Typography>
+);
+
+// Styled Section Title
+const SectionTitle = ({ children, ...props }) => (
+    <Typography
+        variant="h5"
+        {...props}
+        sx={{
+            fontFamily: "'Cinzel', serif",
+            fontWeight: 600,
+            color: themeColors.iron,
+            marginTop: '24px',
+            marginBottom: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            '&::before': {
+                content: '"⚔"',
+                color: themeColors.gold,
+                fontSize: '1.2em',
+            },
+            ...props.sx,
+        }}
+    >
+        {children}
+    </Typography>
+);
+
 const columns = [
     { 
         field: 'firstName', 
-        headerName: 'First name', 
+        headerName: 'First Name', 
         width: 150, 
         editable: true,
+        headerAlign: 'left',
+        headerClassName: 'knight-header',
     },
     { 
         field: 'lastName', 
-        headerName: 'Last name', 
+        headerName: 'Last Name', 
         width: 150,
         editable: true,
     },
@@ -34,10 +121,9 @@ const columns = [
     },
     { 
         field: 'fullName', 
-        headerName: 'Full name',
+        headerName: 'Full Name',
         description: 'This column has a value getter and is not sortable.', 
-        width: 160,
-        editable: true,
+        width: 200,
         valueGetter: (value, row) => `${row.firstName || ''} ${row.lastName || ''}`,
     },
 ];
@@ -53,106 +139,265 @@ const rows = [
     { id: 8, lastName: 'Frances', firstName: 'Rossini', age: 36 },
     { id: 9, lastName: 'Roxie', firstName: 'Harvey', age: 65 },
 ];
+
 function DashboardPage() {
     return (
-        <>
-            <Typography variant="h4" gutterBottom>
-                Dashboard
-            </Typography>
+        <Box sx={{ 
+            background: 'linear-gradient(135deg, rgba(247,244,227,0.95) 0%, rgba(237,228,217,0.95) 100%)',
+            padding: '24px',
+            borderRadius: '12px',
+            border: `2px solid ${themeColors.iron}`,
+            boxShadow: 'inset 0 0 30px rgba(212,175,55,0.1)',
+        }}>
+            <StyledTitle variant="h4">
+                ⚔ Dashboard Overview ⚔
+            </StyledTitle>
+            
             {/* Summary Section */}
-            <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb:4 }}display='flex'>
-                <Card >
+            <Stack 
+                direction={{ xs: 'column', md: 'row' }} 
+                spacing={3} 
+                sx={{ mb: 4 }}
+            >
+                <StyledCard sx={{ flex: 1, minWidth: 200 }} goldAccent>
                     <CardContent>
-                        <Typography variant="h6">Total Users</Typography>
-                        <Typography variant="h4">{rows.length}</Typography>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardContent>
-                        <Typography variant="h6">Average Age</Typography>
-                        <Typography variant="h4">
-                            {(rows.reduce((sum, row) => sum + (row.age || 0), 0) / 
-                            rows.filter((row) => row.age !== null).length).toFixed(1)}
+                        <Typography variant="overline" sx={{ 
+                            color: themeColors.iron, 
+                            fontFamily: "'Cinzel', serif",
+                            fontWeight: 600,
+                            letterSpacing: '0.15em',
+                        }}>
+                            Total Knights
+                        </Typography>
+                        <Typography variant="h3" sx={{ 
+                            color: themeColors.gold,
+                            fontWeight: 700,
+                            textShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                        }}>
+                            {rows.length}
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: themeColors.silver }}>
+                            Active members in realm
                         </Typography>
                     </CardContent>
-                </Card>
+                </StyledCard>
+                <StyledCard sx={{ flex: 1, minWidth: 200 }}>
+                    <CardContent>
+                        <Typography variant="overline" sx={{ 
+                            color: themeColors.iron, 
+                            fontFamily: "'Cinzel', serif",
+                            fontWeight: 600,
+                            letterSpacing: '0.15em',
+                        }}>
+                            Average Age
+                        </Typography>
+                        <Typography variant="h3" sx={{ 
+                            color: themeColors.iron,
+                            fontWeight: 700,
+                        }}>
+                            {(
+                                rows.reduce((sum, row) => sum + (row.age || 0), 0) / 
+                                rows.filter((row) => row.age !== null).length
+                            ).toFixed(1)}
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: themeColors.silver }}>
+                            Years of service
+                        </Typography>
+                    </CardContent>
+                </StyledCard>
             </Stack>
 
-            {/* Gauges */}
-            <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} sx={{ mb: 4 }}>
-                <Gauge width={100} height={100} value={50} />
-                <Gauge width={100} height={100} value={50} valueMin={10} valueMax={60} />
+{/* Charts */}
+            <Stack 
+                direction={{ xs: 'column', lg: 'row' }} 
+                spacing={3} 
+                sx={{ mb: 4 }}
+            >
+                <Box sx={{ flex: 2, minWidth: 300 }}>
+                    <SectionTitle>Quarterly Campaign Results</SectionTitle>
+                    <Box sx={{ 
+                        background: 'rgba(247,244,227,0.8)',
+                        border: `1px solid ${themeColors.iron}`,
+                        borderRadius: '8px',
+                        p: 2,
+                        boxShadow: 'inset 0 0 10px rgba(0,0,0,0.05)',
+                    }}>
+                        <BarChart
+                            series={[
+                                {
+                                    data: [35, 44, 24, 34], 
+                                    label: 'Victories',
+                                    color: themeColors.gold,
+                                },
+                                {
+                                    data: [51, 6, 49, 30], 
+                                    label: 'Battles',
+                                    color: themeColors.iron,
+                                },
+                            ]}
+                            height={290}
+                            xAxis={[{ 
+                                data: ['Q1', 'Q2', 'Q3', 'Q4'], 
+                                scaleType: 'band', 
+                                label: 'Quarters',
+                                tickLabelStyle: { fill: themeColors.ink, fontFamily: "'Cinzel', serif" },
+                                labelStyle: { fill: themeColors.ink, fontWeight: 600 },
+                            }]}
+                            title="Quarterly Performance"
+                            margin={{ top: 40, right: 40, bottom: 40, left: 40 }}
+                            sx={{
+                                '.MuiCharts-axisLabel': {
+                                    fill: themeColors.ink,
+                                },
+                            }}
+                        />
+                    </Box>
+                </Box>
+                <Box sx={{ flex: 1, minWidth: 250 }}>
+<SectionTitle>Resource Distribution</SectionTitle>
+                    <Box sx={{ 
+                        background: 'rgba(247,244,227,0.8)',
+                        border: `1px solid ${themeColors.iron}`,
+                        borderRadius: '8px',
+                        p: 2,
+                        display: 'flex',
+                        justifyContent: 'center',
+                    }}>
+                        <PieChart
+                            series={[
+                                {
+                                    data: [
+                                        { id: 0, value: 10, label: 'Gold' },
+                                        { id: 1, value: 15, label: 'Silver' },
+                                        { id: 2, value: 20, label: 'Iron' },
+                                    ],
+                                    color: [
+                                        themeColors.gold,
+                                        themeColors.silver,
+                                        themeColors.iron,
+                                    ],
+                                    arcLabel: (item) => `${item.value}`,
+                                    arcLabelMinAngle: 45,
+                                },
+                            ]}
+                            width={250}
+                            height={250}
+                            sx={{
+                                '& .MuiChartsPie-series-label': {
+                                    fontFamily: "'Cinzel', serif",
+                                    fontSize: '12px',
+                                    fontWeight: 700,
+                                    fill: themeColors.ink,
+                                },
+                            }}
+                        />
+                    </Box>
+                </Box>
             </Stack>
 
-            {/* Charts */}
-            <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} sx={{ mb: 4 }}>
-                <BarChart
-                series={[
-                    {
-                    data: [35, 44, 24, 34], label: 'Series 1'},
-                    {data: [51, 6, 49, 30], label: 'Series 2'},
-                ]}
-                height={290}
-                xAxis={[{ data: ['Q1', 'Q2', 'Q3', 'Q4'], scaleType: 'band', label: 'Quarters' }]}
-                title="Quarterly Sales"
-            />
-            <PieChart
-                series={[
-                    {
-                        data: [
-                            { id: 0, value: 10, label: 'Series A' },
-                            { id: 1, value: 15, label: 'Series B' },
-                            { id: 2, value: 20, label: 'Series C' },
-                        ],
-                    },
-                ]}
-                width={200}
-                height={200}
-            />
-
-        </Stack>
-
-        {/* Data Grid */}
-        <Typography variant="h5" gutterBottom>
-            Users Overview
-        </Typography>
-        <Box sx={{ height: 400, width: '100%', mb: 2 }}>
-            <DataGrid
-                rows={rows}
-                columns={columns}
-                experimentalFeatures={{ newEditingApi: true }}
-                initialState={{
-                    pagination: {
-                        paginationModel: { 
-                            pageSize: 5 
+            {/* Data Grid - Knights Register */}
+            <SectionTitle>⚔ Knights Register ⚔</SectionTitle>
+            <Box sx={{ 
+                height: 400, 
+                width: '100%', 
+                mb: 2,
+                border: `2px solid ${themeColors.gold}`,
+                borderRadius: '8px',
+                overflow: 'hidden',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                '& .MuiDataGrid-root': {
+                    border: 'none',
+                },
+                '& .MuiDataGrid-columnHeaders': {
+                    background: `linear-gradient(135deg, ${themeColors.gold}, #B8962E)`,
+                    borderBottom: `2px solid ${themeColors.iron}`,
+                },
+                '& .MuiDataGrid-columnHeaderTitle': {
+                    fontFamily: "'Cinzel', serif",
+                    fontWeight: 700,
+                    color: themeColors.ink,
+                },
+                '& .MuiDataGrid-cell': {
+                    borderColor: `${themeColors.silver}50`,
+                },
+                '& .MuiDataGrid-row:hover': {
+                    backgroundColor: `${themeColors.gold}20`,
+                },
+            }}>
+                <DataGrid
+                    rows={rows}
+                    columns={columns}
+                    experimentalFeatures={{ newEditingApi: true }}
+                    initialState={{
+                        pagination: {
+                            paginationModel: { 
+                                pageSize: 5 
+                            },
                         },
-                    },
-                }}
-                pageSizeOptions={[5]}
-                checkboxSelection
-                disableRowSelectionOnClick
-            />
-        </Box>
-
-        {/* React Leaftlet Map*/}
-        <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
-            Location Map
-        </Typography>
-        <Box sx={{ height: 500, width: '100%' }}>
-            <MapContainer center={[14.604253, 120.994314]} zoom={13} style={{ height: '100%', width: '100%' }}>
-                <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    }}
+                    pageSizeOptions={[5]}
+                    checkboxSelection
+                    disableRowSelectionOnClick
+                    sx={{
+                        backgroundColor: 'rgba(247,244,227,0.95)',
+                        '& .MuiDataGrid-footer': {
+                            backgroundColor: themeColors.parchment,
+                        },
+                    }}
                 />
-                <Marker position={[14.604253, 120.994314]}>
-                    <Popup>
-                        National University-Manila <br />
-                        <p><i>551 M. F. Jhocson St, Sampaloc, Manila, 1008 Metro Manila</i></p>
-                    </Popup>
-                </Marker>
-            </MapContainer>
+            </Box>
+
+            {/* Map - Kingdom Location */}
+            <SectionTitle>⚔ Kingdom Location ⚔</SectionTitle>
+            <Box sx={{ 
+                height: 400, 
+                width: '100%',
+                border: `2px solid ${themeColors.gold}`,
+                borderRadius: '8px',
+                overflow: 'hidden',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            }}>
+                <MapContainer 
+                    center={[14.604253, 120.994314]} 
+                    zoom={13} 
+                    style={{ height: '100%', width: '100%' }}
+                >
+                    <TileLayer
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        attribution='&copy; OpenStreetMap contributors'
+                    />
+                    <Marker position={[14.604253, 120.994314]}>
+                        <Popup>
+                            <div style={{ 
+                                fontFamily: "'Cinzel', serif",
+                                textAlign: 'center',
+                            }}>
+                                <strong>🏰 Castle Nuñas</strong>
+                                <br />
+                                <i>551 M. F. Jhocson St, Sampaloc, Manila</i>
+                            </div>
+                        </Popup>
+                    </Marker>
+                </MapContainer>
+            </Box>
+
+            {/* Decorative Footer */}
+            <Box sx={{ 
+                textAlign: 'center', 
+                mt: 4, 
+                pt: 2,
+                borderTop: `1px solid ${themeColors.silver}`,
+            }}>
+                <Typography sx={{ 
+                    fontFamily: "'MedievalSharp', cursive",
+                    color: themeColors.gold,
+                    fontSize: '1.2em',
+                    letterSpacing: '0.2em',
+                }}>
+                    ⚜ Honor • Courage • Faith ⚜
+                </Typography>
+            </Box>
         </Box>
-    </>
     );
 }
 

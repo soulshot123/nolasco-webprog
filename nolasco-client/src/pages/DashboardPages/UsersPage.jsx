@@ -1,5 +1,5 @@
 import React from 'react';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid } from '@mui/x-data-grid/DataGrid';
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -14,6 +14,192 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import Avatar from '@mui/material/Avatar';
+
+// Medieval Knight Theme Colors
+const themeColors = {
+    gold: '#D4AF37',
+    silver: '#C0C0C0',
+    iron: '#4A5568',
+    steel: '#2D3748',
+    parchment: '#F7F4E3',
+    ink: '#2D1B0F',
+    velvet: '#1A0D00',
+    success: '#2E7D32',
+    error: '#C62828',
+};
+
+// Styled Card Component for Theme
+const StyledCard = ({ children, goldAccent, ...props }) => (
+    <Card
+        {...props}
+        sx={{
+            background: 'linear-gradient(145deg, #F7F4E3, #EDE4D9)',
+            border: `2px solid ${themeColors.iron}`,
+            borderRadius: '8px',
+            position: 'relative',
+            overflow: 'visible',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: '-2px',
+                left: '-2px',
+                right: '-2px',
+                bottom: '-2px',
+                borderRadius: '10px',
+                border: goldAccent ? `2px solid ${themeColors.gold}` : 'none',
+                pointerEvents: 'none',
+            },
+            ...props.sx,
+        }}
+    >
+        <CardContent>{children}</CardContent>
+    </Card>
+);
+
+// Styled Typography
+const StyledTitle = ({ children, ...props }) => (
+    <Typography
+        {...props}
+        sx={{
+            fontFamily: "'Cinzel', serif",
+            fontWeight: 700,
+            color: themeColors.ink,
+            letterSpacing: '0.05em',
+            textTransform: 'uppercase',
+            borderBottom: `2px solid ${themeColors.gold}`,
+            paddingBottom: '8px',
+            marginBottom: '16px',
+            display: 'inline-block',
+            ...props.sx,
+        }}
+    >
+        {children}
+    </Typography>
+);
+
+// Styled Section Title
+const SectionTitle = ({ children, ...props }) => (
+    <Typography
+        variant="h5"
+        {...props}
+        sx={{
+            fontFamily: "'Cinzel', serif",
+            fontWeight: 600,
+            color: themeColors.iron,
+            marginTop: '24px',
+            marginBottom: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            '&::before': {
+                content: '"👥"',
+                color: themeColors.gold,
+                fontSize: '1.2em',
+            },
+            ...props.sx,
+        }}
+    >
+        {children}
+    </Typography>
+);
+
+// Stat Value Typography
+const StatValue = ({ children, ...props }) => (
+    <Typography
+        variant="h3"
+        {...props}
+        sx={{
+            fontFamily: "'Cinzel', serif",
+            fontWeight: 700,
+            color: themeColors.gold,
+            textShadow: '0 2px 4px rgba(0,0,0,0.2)',
+            ...props.sx,
+        }}
+    >
+        {children}
+    </Typography>
+);
+
+// Stat Label Typography
+const StatLabel = ({ children, ...props }) => (
+    <Typography
+        variant="overline"
+        {...props}
+        sx={{
+            fontFamily: "'Cinzel', serif",
+            fontWeight: 600,
+            letterSpacing: '0.15em',
+            color: themeColors.iron,
+            ...props.sx,
+        }}
+    >
+        {children}
+    </Typography>
+);
+
+// Styled Button
+const MedievalButton = ({ children, goldAccent, ...props }) => (
+    <Button
+        {...props}
+        sx={{
+            fontFamily: "'Cinzel', serif",
+            fontWeight: 700,
+            background: goldAccent 
+                ? `linear-gradient(135deg, ${themeColors.gold}, #B8962E)`
+                : `linear-gradient(135deg, ${themeColors.iron}, ${themeColors.steel})`,
+            color: themeColors.parchment,
+            border: `2px solid ${goldAccent ? themeColors.gold : themeColors.iron}`,
+            borderRadius: '6px',
+            padding: '8px 20px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.1em',
+            boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+            '&:hover': {
+                background: goldAccent 
+                    ? `linear-gradient(135deg, #E5C04B, ${themeColors.gold})`
+                    : `linear-gradient(135deg, ${themeColors.steel}, ${themeColors.iron})`,
+                boxShadow: '0 6px 12px rgba(0,0,0,0.3)',
+            },
+            ...props.sx,
+        }}
+    >
+        {children}
+    </Button>
+);
+
+// Styled TextField
+const MedievalTextField = ({ ...props }) => (
+    <TextField
+        {...props}
+        sx={{
+            '& .MuiOutlinedInput-root': {
+                fontFamily: "'Cinzel', serif",
+                background: 'rgba(247,244,227,0.9)',
+                borderRadius: '6px',
+                '& fieldset': {
+                    borderColor: themeColors.iron,
+                    borderWidth: '2px',
+                },
+                '&:hover fieldset': {
+                    borderColor: themeColors.gold,
+                },
+                '&.Mui-focused fieldset': {
+                    borderColor: themeColors.gold,
+                    borderWidth: '2px',
+                },
+            },
+            '& .MuiInputLabel-root': {
+                fontFamily: "'Cinzel', serif",
+                color: themeColors.iron,
+            },
+            '& .MuiInputBase-input': {
+                color: themeColors.ink,
+            },
+            ...props.sx,
+        }}
+    />
+);
 
 const columns = [
     { 
@@ -207,71 +393,112 @@ const rows = [
 
 function UsersPage() {
     return (
-        <>
-            <Typography variant="h4" gutterBottom>
-                Users Management
-            </Typography>
+        <Box sx={{ 
+            background: 'linear-gradient(135deg, rgba(247,244,227,0.95) 0%, rgba(237,228,217,0.95) 100%)',
+            padding: '24px',
+            borderRadius: '12px',
+            border: `2px solid ${themeColors.iron}`,
+            boxShadow: 'inset 0 0 30px rgba(212,175,55,0.1)',
+        }}>
+            <StyledTitle variant="h4">
+                👥 User Registry 👥
+            </StyledTitle>
             
-            {/* Summary Cards */}
-            <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 4 }}>
-                <Card sx={{ flex: 1 }}>
+            {/* Summary Cards - Kingdom Subjects */}
+            <Stack 
+                direction={{ xs: 'column', md: 'row' }} 
+                spacing={3} 
+                sx={{ mb: 4 }}
+            >
+                <StyledCard sx={{ flex: 1, minWidth: 150 }} goldAccent>
                     <CardContent>
-                        <Typography variant="h6" color="primary">Total Users</Typography>
-                        <Typography variant="h4">{rows.length}</Typography>
+                        <StatLabel>Total Subjects</StatLabel>
+                        <StatValue>{rows.length}</StatValue>
                     </CardContent>
-                </Card>
-                <Card sx={{ flex: 1 }}>
+                </StyledCard>
+                <StyledCard sx={{ flex: 1, minWidth: 150 }}>
                     <CardContent>
-                        <Typography variant="h6" color="success.main">Active Users</Typography>
-                        <Typography variant="h4">
+                        <StatLabel>Active Knights</StatLabel>
+                        <StatValue>
                             {rows.filter(row => row.status === 'Active').length}
-                        </Typography>
+                        </StatValue>
                     </CardContent>
-                </Card>
-                <Card sx={{ flex: 1 }}>
+                </StyledCard>
+                <StyledCard sx={{ flex: 1, minWidth: 150 }}>
                     <CardContent>
-                        <Typography variant="h6" color="error.main">Inactive Users</Typography>
-                        <Typography variant="h4">
+                        <StatLabel>Inactive Squires</StatLabel>
+                        <StatValue>
                             {rows.filter(row => row.status === 'Inactive').length}
-                        </Typography>
+                        </StatValue>
                     </CardContent>
-                </Card>
-                <Card sx={{ flex: 1 }}>
+                </StyledCard>
+                <StyledCard sx={{ flex: 1, minWidth: 150 }}>
                     <CardContent>
-                        <Typography variant="h6" color="warning.main">Admins</Typography>
-                        <Typography variant="h4">
+                        <StatLabel>Lord Commanders</StatLabel>
+                        <StatValue>
                             {rows.filter(row => row.role === 'Admin').length}
-                        </Typography>
+                        </StatValue>
                     </CardContent>
-                </Card>
+                </StyledCard>
             </Stack>
 
             {/* Search and Actions */}
-            <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 2 }}>
-                <TextField
-                    placeholder="Search users..."
+            <Stack 
+                direction={{ xs: 'column', md: 'row' }} 
+                spacing={3} 
+                sx={{ mb: 4 }}
+            >
+                <MedievalTextField
+                    placeholder="Search subjects..."
                     size="small"
                     sx={{ flex: 1 }}
                     InputProps={{
                         startAdornment: (
                             <InputAdornment position="start">
-                                <SearchIcon />
+                                <SearchIcon sx={{ color: themeColors.iron }} />
                             </InputAdornment>
                         ),
                     }}
                 />
-                <Button 
+                <MedievalButton 
                     variant="contained" 
-                    color="primary" 
+                    goldAccent
                     startIcon={<AddIcon />}
                     sx={{ flex: 0, whiteSpace: 'nowrap' }}
                 >
-                    Add User
-                </Button>
+                    Recruit Subject
+                </MedievalButton>
             </Stack>
 
-            {/* Users Data Grid */}
-            <Box sx={{ height: 600, width: '100%' }}>
+            {/* Users Data Grid - Knights Register */}
+            <SectionTitle>⚔ Knights of the Realm ⚔</SectionTitle>
+            <Box sx={{ 
+                height: 550, 
+                width: '100%', 
+                mb: 2,
+                border: `2px solid ${themeColors.gold}`,
+                borderRadius: '8px',
+                overflow: 'hidden',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                '& .MuiDataGrid-root': {
+                    border: 'none',
+                },
+                '& .MuiDataGrid-columnHeaders': {
+                    background: `linear-gradient(135deg, ${themeColors.gold}, #B8962E)`,
+                    borderBottom: `2px solid ${themeColors.iron}`,
+                },
+                '& .MuiDataGrid-columnHeaderTitle': {
+                    fontFamily: "'Cinzel', serif",
+                    fontWeight: 700,
+                    color: themeColors.ink,
+                },
+                '& .MuiDataGrid-cell': {
+                    borderColor: `${themeColors.silver}50`,
+                },
+                '& .MuiDataGrid-row:hover': {
+                    backgroundColor: `${themeColors.gold}20`,
+                },
+            }}>
                 <DataGrid
                     rows={rows}
                     columns={columns}
@@ -286,14 +513,31 @@ function UsersPage() {
                     checkboxSelection
                     disableRowSelectionOnClick
                     sx={{
-                        '& .MuiDataGrid-cell': {
-                            display: 'flex',
-                            alignItems: 'center',
+                        backgroundColor: 'rgba(247,244,227,0.95)',
+                        '& .MuiDataGrid-footer': {
+                            backgroundColor: themeColors.parchment,
                         },
                     }}
                 />
             </Box>
-        </>
+
+            {/* Decorative Footer */}
+            <Box sx={{ 
+                textAlign: 'center', 
+                mt: 4, 
+                pt: 2,
+                borderTop: `1px solid ${themeColors.silver}`,
+            }}>
+                <Typography sx={{ 
+                    fontFamily: "'MedievalSharp', cursive",
+                    color: themeColors.gold,
+                    fontSize: '1.2em',
+                    letterSpacing: '0.2em',
+                }}>
+                    ⚜ Honor • Courage • Faith ⚜
+                </Typography>
+            </Box>
+        </Box>
     );
 }
 
