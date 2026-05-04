@@ -151,7 +151,7 @@ const MedievalButton = ({ children, goldAccent, ...props }) => (
             color: themeColors.parchment,
             border: `2px solid ${goldAccent ? themeColors.gold : themeColors.iron}`,
             borderRadius: '6px',
-            padding: '8px 20px',
+            padding: '12px 28px',
             textTransform: 'uppercase',
             letterSpacing: '0.1em',
             boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
@@ -464,9 +464,9 @@ function UsersPage() {
                     variant="contained" 
                     goldAccent
                     startIcon={<AddIcon />}
-                    sx={{ flex: 0, whiteSpace: 'nowrap' }}
+                    sx={{ flex: 0, whiteSpace: 'nowrap', minWidth: '140px' }}
                 >
-                    Recruit Subject
+                    Add User
                 </MedievalButton>
             </Stack>
 
