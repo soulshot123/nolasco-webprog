@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid/DataGrid';
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
@@ -11,9 +11,22 @@ import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import Avatar from '@mui/material/Avatar';
+import usersData from '../../assets/data/users.json';
 
 // Medieval Knight Theme Colors
 const themeColors = {
@@ -268,130 +281,99 @@ const columns = [
     },
 ];
 
-const rows = [
-    { 
-        id: 1, 
-        firstName: 'Jon', 
-        lastName: 'Snow', 
-        email: 'jon.snow@company.com',
-        role: 'Admin',
-        status: 'Active',
-        lastLogin: '2024-01-15 10:30',
-        avatar: 'https://i.pravatar.cc/150?img=1'
-    },
-    { 
-        id: 2, 
-        firstName: 'Cersei', 
-        lastName: 'Lannister', 
-        email: 'cersei.lannister@company.com',
-        role: 'Manager',
-        status: 'Active',
-        lastLogin: '2024-01-14 09:15',
-        avatar: 'https://i.pravatar.cc/150?img=5'
-    },
-    { 
-        id: 3, 
-        firstName: 'Jaime', 
-        lastName: 'Lannister', 
-        email: 'jaime.lannister@company.com',
-        role: 'User',
-        status: 'Active',
-        lastLogin: '2024-01-13 14:20',
-        avatar: 'https://i.pravatar.cc/150?img=3'
-    },
-    { 
-        id: 4, 
-        firstName: 'Arya', 
-        lastName: 'Stark', 
-        email: 'arya.stark@company.com',
-        role: 'User',
-        status: 'Active',
-        lastLogin: '2024-01-12 16:45',
-        avatar: 'https://i.pravatar.cc/150?img=9'
-    },
-    { 
-        id: 5, 
-        firstName: 'Daenerys', 
-        lastName: 'Targaryen', 
-        email: 'daenerys.targaryen@company.com',
-        role: 'Admin',
-        status: 'Active',
-        lastLogin: '2024-01-11 11:00',
-        avatar: 'https://i.pravatar.cc/150?img=11'
-    },
-    { 
-        id: 6, 
-        firstName: 'Tyrion', 
-        lastName: 'Lannister', 
-        email: 'tyrion.lannister@company.com',
-        role: 'Manager',
-        status: 'Active',
-        lastLogin: '2024-01-10 08:30',
-        avatar: 'https://i.pravatar.cc/150?img=13'
-    },
-    { 
-        id: 7, 
-        firstName: 'Ferrara', 
-        lastName: 'Clifford', 
-        email: 'ferrara.clifford@company.com',
-        role: 'User',
-        status: 'Inactive',
-        lastLogin: '2024-01-05 12:00',
-        avatar: 'https://i.pravatar.cc/150?img=15'
-    },
-    { 
-        id: 8, 
-        firstName: 'Rossini', 
-        lastName: 'Frances', 
-        email: 'rossini.frances@company.com',
-        role: 'User',
-        status: 'Active',
-        lastLogin: '2024-01-09 15:30',
-        avatar: 'https://i.pravatar.cc/150?img=17'
-    },
-    { 
-        id: 9, 
-        firstName: 'Harvey', 
-        lastName: 'Roxie', 
-        email: 'harvey.roxie@company.com',
-        role: 'User',
-        status: 'Active',
-        lastLogin: '2024-01-08 10:00',
-        avatar: 'https://i.pravatar.cc/150?img=19'
-    },
-    { 
-        id: 10, 
-        firstName: 'John', 
-        lastName: 'Doe', 
-        email: 'john.doe@company.com',
-        role: 'User',
-        status: 'Active',
-        lastLogin: '2024-01-07 09:45',
-        avatar: 'https://i.pravatar.cc/150?img=21'
-    },
-    { 
-        id: 11, 
-        firstName: 'Jane', 
-        lastName: 'Smith', 
-        email: 'jane.smith@company.com',
-        role: 'Manager',
-        status: 'Active',
-        lastLogin: '2024-01-06 14:15',
-        avatar: 'https://i.pravatar.cc/150?img=23'
-    },
-    { 
-        id: 12, 
-        firstName: 'Mike', 
-        lastName: 'Johnson', 
-        email: 'mike.johnson@company.com',
-        role: 'User',
-        status: 'Inactive',
-        lastLogin: '2023-12-20 11:30',
-        avatar: 'https://i.pravatar.cc/150?img=25'
-    },
-];
+
 
 function UsersPage() {
+    const [rows, setRows] = useState(usersData.map((user, index) => ({
+        id: index + 1,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role.charAt(0).toUpperCase() + user.role.slice(1),
+        status: user.isActive ? 'Active' : 'Inactive',
+        lastLogin: '2024-10-' + (20 + index).toString().padStart(2, '0') + ' 14:30',
+        avatar: `https://i.pravatar.cc/150?img=${index + 1}`
+    })));
+
+    // Add User Modal State
+    const [openAddModal, setOpenAddModal] = useState(false);
+    const [formData, setFormData] = useState({
+        firstName: '',
+        lastName: '',
+        age: '',
+        gender: '',
+        contactNumber: '',
+        email: '',
+        role: '',
+        username: '',
+        password: '',
+        address: '',
+        isActive: true
+    });
+    const [showPassword, setShowPassword] = useState(false);
+
+    const handleInputChange = (e) => {
+        const { name, value, type, checked } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : value
+        }));
+    };
+
+    const handleAddUser = (e) => {
+        e.preventDefault();
+        if (!formData.firstName || !formData.lastName || !formData.email || !formData.role || !formData.username || !formData.password) {
+            alert('Please fill in all required fields.');
+            return;
+        }
+
+        const newUser = {
+            id: rows.length + 1,
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            role: formData.role.charAt(0).toUpperCase() + formData.role.slice(1),
+            status: formData.isActive ? 'Active' : 'Inactive',
+            lastLogin: new Date().toISOString().split('T')[0] + ' 14:30',
+            avatar: `https://i.pravatar.cc/150?img=${Math.floor(Math.random() * 70) + 1}`
+        };
+        setRows(prev => [newUser, ...prev]);
+        setFormData({
+            firstName: '',
+            lastName: '',
+            age: '',
+            gender: '',
+            contactNumber: '',
+            email: '',
+            role: '',
+            username: '',
+            password: '',
+            address: '',
+            isActive: true
+        });
+        setOpenAddModal(false);
+        setShowPassword(false);
+    };
+
+    const handleOpenAddModal = () => setOpenAddModal(true);
+    const handleCloseAddModal = () => {
+        setOpenAddModal(false);
+        setFormData({
+            firstName: '',
+            lastName: '',
+            age: '',
+            gender: '',
+            contactNumber: '',
+            email: '',
+            role: '',
+            username: '',
+            password: '',
+            address: '',
+            isActive: true
+        });
+        setShowPassword(false);
+    };
+
     return (
         <Box sx={{ 
             background: 'linear-gradient(135deg, rgba(247,244,227,0.95) 0%, rgba(237,228,217,0.95) 100%)',
@@ -460,10 +442,11 @@ function UsersPage() {
                         ),
                     }}
                 />
-                <MedievalButton 
+<MedievalButton 
                     variant="contained" 
                     goldAccent
                     startIcon={<AddIcon />}
+                    onClick={handleOpenAddModal}
                     sx={{ flex: 0, whiteSpace: 'nowrap', minWidth: '140px' }}
                 >
                     Add User
@@ -520,6 +503,189 @@ function UsersPage() {
                     }}
                 />
             </Box>
+
+            {/* Add User Modal */}
+            <Dialog open={openAddModal} onClose={handleCloseAddModal} maxWidth="md" fullWidth PaperProps={{
+                sx: {
+                    border: `2px solid ${themeColors.gold}`,
+                    borderRadius: '12px'
+                }
+            }}>
+                <DialogTitle sx={{ 
+                    fontFamily: "'Cinzel', serif", 
+                    fontWeight: 700, 
+                    background: `linear-gradient(135deg, ${themeColors.gold}, #B8962E)`,
+                    color: themeColors.parchment,
+                    borderBottom: `2px solid ${themeColors.iron}`
+                }}>
+                    ⚔ Enlist New Knight ⚔
+                </DialogTitle>
+                <form onSubmit={handleAddUser}>
+                    <DialogContent sx={{ p: 4 }}>
+                        <Stack spacing={3}>
+                            {/* Name Row */}
+                            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                                <MedievalTextField
+                                    name="firstName"
+                                    label="First Name *"
+                                    value={formData.firstName}
+                                    onChange={handleInputChange}
+                                    required
+                                    sx={{ flex: 1 }}
+                                />
+                                <MedievalTextField
+                                    name="lastName"
+                                    label="Last Name *"
+                                    value={formData.lastName}
+                                    onChange={handleInputChange}
+                                    required
+                                    sx={{ flex: 1 }}
+                                />
+                            </Stack>
+
+                            {/* Age & Gender Row */}
+                            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                                <MedievalTextField
+                                    name="age"
+                                    label="Age"
+                                    type="number"
+                                    value={formData.age}
+                                    onChange={handleInputChange}
+                                    sx={{ flex: 1 }}
+                                />
+                                <FormControl fullWidth sx={{ flex: 1 }}>
+                                    <InputLabel>Gender</InputLabel>
+                                    <Select
+                                        name="gender"
+                                        value={formData.gender}
+                                        label="Gender"
+                                        onChange={handleInputChange}
+                                    >
+                                        <MenuItem value="Male">Male</MenuItem>
+                                        <MenuItem value="Female">Female</MenuItem>
+                                        <MenuItem value="Other">Other</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Stack>
+
+                            {/* Contact & Email Row */}
+                            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                                <MedievalTextField
+                                    name="contactNumber"
+                                    label="Contact Number"
+                                    value={formData.contactNumber}
+                                    onChange={handleInputChange}
+                                    sx={{ flex: 1 }}
+                                />
+                                <MedievalTextField
+                                    name="email"
+                                    label="Email *"
+                                    type="email"
+                                    value={formData.email}
+                                    onChange={handleInputChange}
+                                    required
+                                    sx={{ flex: 1 }}
+                                />
+                            </Stack>
+
+                            {/* Role & Username Row */}
+                            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                                <FormControl fullWidth sx={{ flex: 1 }}>
+                                    <InputLabel>Role *</InputLabel>
+                                    <Select
+                                        name="role"
+                                        value={formData.role}
+                                        label="Role *"
+                                        onChange={handleInputChange}
+                                        required
+                                    >
+                                        <MenuItem value="admin">Admin</MenuItem>
+                                        <MenuItem value="user">User</MenuItem>
+                                        <MenuItem value="moderator">Moderator</MenuItem>
+                                    </Select>
+                                </FormControl>
+                                <MedievalTextField
+                                    name="username"
+                                    label="Username *"
+                                    value={formData.username}
+                                    onChange={handleInputChange}
+                                    required
+                                    sx={{ flex: 1 }}
+                                />
+                            </Stack>
+
+                            {/* Password Row */}
+                            <MedievalTextField
+                                name="password"
+                                label="Password *"
+                                type={showPassword ? 'text' : 'password'}
+                                value={formData.password}
+                                onChange={handleInputChange}
+                                required
+                                fullWidth
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <IconButton
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                edge="end"
+                                            >
+                                                {showPassword ? <VisibilityOff /> : <Visibility />}
+                                            </IconButton>
+                                        </InputAdornment>
+                                    )
+                                }}
+                            />
+
+                            {/* Address Row */}
+                            <MedievalTextField
+                                name="address"
+                                label="Address"
+                                value={formData.address}
+                                onChange={handleInputChange}
+                                multiline
+                                rows={2}
+                                fullWidth
+                            />
+
+                            {/* Status Checkbox */}
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        name="isActive"
+                                        checked={formData.isActive}
+                                        onChange={handleInputChange}
+                                        sx={{
+                                            color: themeColors.iron,
+                                            '&.Mui-checked': {
+                                                color: themeColors.success,
+                                            },
+                                        }}
+                                    />
+                                }
+                                label={
+                                    <Typography sx={{ fontFamily: "'Cinzel', serif", color: themeColors.iron }}>
+                                        Active Status
+                                    </Typography>
+                                }
+                            />
+                        </Stack>
+                    </DialogContent>
+                    <DialogActions sx={{ p: 3, borderTop: `1px solid ${themeColors.iron}` }}>
+                        <MedievalButton onClick={handleCloseAddModal} sx={{ flex: 1 }}>
+                            Cancel
+                        </MedievalButton>
+                        <MedievalButton 
+                            type="submit" 
+                            goldAccent 
+                            variant="contained" 
+                            sx={{ flex: 1 }}
+                        >
+                            Enlist Knight
+                        </MedievalButton>
+                    </DialogActions>
+                </form>
+            </Dialog>
 
             {/* Decorative Footer */}
             <Box sx={{ 
