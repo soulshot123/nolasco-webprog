@@ -31,6 +31,7 @@ function getIcon(label) {
         case 'Dashboard': return <DashboardIcon />;
         case 'Reports': return <AssessmentIcon />;
         case 'Users': return <PeopleIcon />;
+        case 'Print Preview': return <AssessmentIcon />;
         default: return <DashboardIcon />;
     }
 }
@@ -55,6 +56,7 @@ const dashboardNavItems = [
         to: '/dashboard/users',
         icon: <PeopleIcon />,
     },
+
 ];
 
 const openedMixin = (theme) => ({
@@ -171,14 +173,14 @@ const DashLayout = () => {
 return (
         <Box sx={{ display: 'flex' }}>
             <CssBaseline />
-            <AppBar position="fixed">
+            <AppBar position="fixed" sx={{ '@media print': { display: 'none !important' } }}>
                 <Toolbar>
                     <IconButton
                         color="inherit"
                         aria-label="open drawer"
                         onClick={open ? handleDrawerClose : handleDrawerOpen}
                         edge="start"
-                        sx={{ marginRight: 5, ...open }}
+                        sx={{ marginRight: 5, ...(open && { mr: 0 }) }}
                     >
                         {open ? <MenuOpenIcon /> : <MenuIcon />}
                     </IconButton>
@@ -190,14 +192,14 @@ return (
                     >   
                         {pageTitle}
                     </Typography>
-                    <Search>
-                        <SearchIconWrapper>
+<Search sx={{ '@media print': { display: 'none' } }}>
+                        <SearchIconWrapper sx={{ padding: theme.spacing(0, 0, 0, 1) }}>
                             <SearchIcon />
                         </SearchIconWrapper>
                         <InputBase
                             placeholder="Search…"
                             inputProps={{ 'aria-label': 'search' }}
-                            sx={{ color: 'inherit' }}
+                            sx={{ color: 'inherit', pl: 4 }}  // Space for left icon
                         />
                     </Search>
                     <Button color="inherit" variant="outlined" onClick={handleLogout}>
@@ -205,7 +207,7 @@ return (
                     </Button>
                 </Toolbar>
             </AppBar>
-            <Drawer variant="permanent" open={open}>
+            <Drawer variant="permanent" open={open} sx={{ '@media print': { display: 'none !important' } }}>
                 <DrawerHeader>
                     <IconButton onClick={handleDrawerClose}>
                         {theme.direction === 'rtl' ? ( 
@@ -241,8 +243,8 @@ return (
                     ))}
                 </List>
             </Drawer>
-            <Box component="main" sx={{ flexGrow: 1, p: 3, mt: 8 }}>
-                <DrawerHeader />
+            <Box component="main" sx={{ flexGrow: 1, p: 3, mt: 8, '@media print': { p: 0, mt: 0 } }}>
+                <DrawerHeader sx={{ '@media print': { display: 'none' } }} />
                 <Outlet />
             </Box>
         </Box>
@@ -250,3 +252,4 @@ return (
 };
 
 export default DashLayout;
+

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DataGrid } from '@mui/x-data-grid/DataGrid';
+import { DataGrid } from '@mui/x-data-grid';
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -27,6 +27,8 @@ import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import Avatar from '@mui/material/Avatar';
 import usersData from '../../assets/data/users.json';
+
+
 
 // Medieval Knight Theme Colors
 const themeColors = {
@@ -335,7 +337,7 @@ function UsersPage() {
             newErrors.password = 'Password must be at least 8 characters';
         }
 
-        if (formData.contactNumber && !/^\\d{11}$/.test(formData.contactNumber)) {
+        if (formData.contactNumber && /^\\d{11}$/.test(formData.contactNumber)) {
             newErrors.contactNumber = 'Contact number must be exactly 11 digits';
         }
 
@@ -405,7 +407,7 @@ function UsersPage() {
         setShowPassword(false);
     };
 
-    const handleOpenAddModal = () => setOpenAddModal(true);
+const handleOpenAddModal = () => setOpenAddModal(true);
     // Filtered rows computation
     const filteredRows = rows.filter((row) => {
         const matchesSearch = !searchTerm || 
@@ -439,6 +441,8 @@ function UsersPage() {
         setErrors({});
         setShowPassword(false);
     };
+
+
 
     return (
         <Box sx={{ 
@@ -566,6 +570,8 @@ function UsersPage() {
                     Clear
                 </MedievalButton>
 
+
+
                 <MedievalButton 
                     variant="contained" 
                     goldAccent
@@ -609,12 +615,8 @@ function UsersPage() {
                 <DataGrid
                     rows={filteredRows}
                     columns={columns}
-                    initialState={{
-                        pagination: {
-                            paginationModel: { 
-                                pageSize: 10 
-                            },
-                        },
+                    paginationModel={{ 
+                        pageSize: 10 
                     }}
                     pageSizeOptions={[5, 10, 25]}
                     checkboxSelection
