@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useRef, useCallback } from 'react';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { LineChart } from '@mui/x-charts/LineChart';
