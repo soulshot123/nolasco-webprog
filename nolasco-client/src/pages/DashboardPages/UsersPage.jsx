@@ -253,6 +253,11 @@ const columns = [
         editable: true,
     },
     { 
+        field: 'gender', 
+        headerName: 'Gender',
+        width: 100,
+    },
+    { 
         field: 'status', 
         headerName: 'Status',
         width: 100,
@@ -289,6 +294,8 @@ function UsersPage() {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
+        username: user.username,
+        gender: user.gender,
         role: user.role.charAt(0).toUpperCase() + user.role.slice(1),
         status: user.isActive ? 'Active' : 'Inactive',
         lastLogin: '2024-10-' + (20 + index).toString().padStart(2, '0') + ' 14:30',
@@ -312,16 +319,56 @@ function UsersPage() {
     });
     const [showPassword, setShowPassword] = useState(false);
 
+    // Search & Filter state
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterRole, setFilterRole] = useState('');
+    const [filterGender, setFilterGender] = useState('');
+    const [filterStatus, setFilterStatus] = useState('');
+
+    // Form validation state
+    const [errors, setErrors] = useState({});
+
+    const validateForm = () => {
+        const newErrors = {};
+
+        if (formData.password && formData.password.length < 8) {
+            newErrors.password = 'Password must be at least 8 characters';
+        }
+
+        if (formData.contactNumber && !/^\\d{11}$/.test(formData.contactNumber)) {
+            newErrors.contactNumber = 'Contact number must be exactly 11 digits';
+        }
+
+        if (formData.age && (isNaN(formData.age) || parseInt(formData.age) <= 0)) {
+            newErrors.age = 'Age must be a positive number';
+        }
+
+        if (formData.username && /\\s/.test(formData.username)) {
+            newErrors.username = 'Username must not contain spaces';
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
         setFormData(prev => ({
             ...prev,
             [name]: type === 'checkbox' ? checked : value
         }));
+        // Clear error on change
+        if (errors[name]) {
+            setErrors(prev => ({ ...prev, [name]: '' }));
+        }
     };
 
     const handleAddUser = (e) => {
         e.preventDefault();
+        if (!validateForm()) {
+            alert('Please fix the errors below.');
+            return;
+        }
         if (!formData.firstName || !formData.lastName || !formData.email || !formData.role || !formData.username || !formData.password) {
             alert('Please fill in all required fields.');
             return;
@@ -332,6 +379,8 @@ function UsersPage() {
             firstName: formData.firstName,
             lastName: formData.lastName,
             email: formData.email,
+            username: formData.username,
+            gender: formData.gender,
             role: formData.role.charAt(0).toUpperCase() + formData.role.slice(1),
             status: formData.isActive ? 'Active' : 'Inactive',
             lastLogin: new Date().toISOString().split('T')[0] + ' 14:30',
@@ -351,11 +400,27 @@ function UsersPage() {
             address: '',
             isActive: true
         });
+        setErrors({});
         setOpenAddModal(false);
         setShowPassword(false);
     };
 
     const handleOpenAddModal = () => setOpenAddModal(true);
+    // Filtered rows computation
+    const filteredRows = rows.filter((row) => {
+        const matchesSearch = !searchTerm || 
+            row.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            row.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            row.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            row.username?.toLowerCase().includes(searchTerm.toLowerCase());
+
+        const matchesRole = !filterRole || row.role === filterRole;
+        const matchesGender = !filterGender || row.gender === filterGender;
+        const matchesStatus = !filterStatus || row.status === filterStatus;
+
+        return matchesSearch && matchesRole && matchesGender && matchesStatus;
+    });
+
     const handleCloseAddModal = () => {
         setOpenAddModal(false);
         setFormData({
@@ -371,6 +436,7 @@ function UsersPage() {
             address: '',
             isActive: true
         });
+        setErrors({});
         setShowPassword(false);
     };
 
@@ -395,14 +461,14 @@ function UsersPage() {
                 <StyledCard sx={{ flex: 1, minWidth: 150 }} goldAccent>
                     <CardContent>
                         <StatLabel>Total Subjects</StatLabel>
-                        <StatValue>{rows.length}</StatValue>
+                        <StatValue>{filteredRows.length}</StatValue>
                     </CardContent>
                 </StyledCard>
                 <StyledCard sx={{ flex: 1, minWidth: 150 }}>
                     <CardContent>
                         <StatLabel>Active Knights</StatLabel>
                         <StatValue>
-                            {rows.filter(row => row.status === 'Active').length}
+                            {filteredRows.filter(row => row.status === 'Active').length}
                         </StatValue>
                     </CardContent>
                 </StyledCard>
@@ -410,7 +476,7 @@ function UsersPage() {
                     <CardContent>
                         <StatLabel>Inactive Squires</StatLabel>
                         <StatValue>
-                            {rows.filter(row => row.status === 'Inactive').length}
+                            {filteredRows.filter(row => row.status === 'Inactive').length}
                         </StatValue>
                     </CardContent>
                 </StyledCard>
@@ -418,22 +484,24 @@ function UsersPage() {
                     <CardContent>
                         <StatLabel>Lord Commanders</StatLabel>
                         <StatValue>
-                            {rows.filter(row => row.role === 'Admin').length}
+                            {filteredRows.filter(row => row.role === 'Admin').length}
                         </StatValue>
                     </CardContent>
                 </StyledCard>
             </Stack>
 
-            {/* Search and Actions */}
+            {/* Search and Filters */}
             <Stack 
-                direction={{ xs: 'column', md: 'row' }} 
-                spacing={3} 
-                sx={{ mb: 4 }}
+                direction="row" 
+                spacing={2} 
+                sx={{ mb: 4, flexWrap: 'wrap', gap: 2 }}
             >
                 <MedievalTextField
-                    placeholder="Search subjects..."
+                    placeholder="Search by name, email, username..."
                     size="small"
-                    sx={{ flex: 1 }}
+                    sx={{ flex: 1, minWidth: 250 }}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                     InputProps={{
                         startAdornment: (
                             <InputAdornment position="start">
@@ -442,12 +510,68 @@ function UsersPage() {
                         ),
                     }}
                 />
-<MedievalButton 
+
+                <FormControl size="small" sx={{ minWidth: 140 }}>
+                    <InputLabel>Role</InputLabel>
+                    <Select 
+                        value={filterRole} 
+                        onChange={(e) => setFilterRole(e.target.value)} 
+                        label="Role"
+                    >
+                        <MenuItem value="">All Roles</MenuItem>
+                        <MenuItem value="Admin">Admin</MenuItem>
+                        <MenuItem value="User">User</MenuItem>
+                        <MenuItem value="Editor">Editor</MenuItem>
+                        <MenuItem value="Viewer">Viewer</MenuItem>
+                        <MenuItem value="Moderator">Moderator</MenuItem>
+                    </Select>
+                </FormControl>
+
+                <FormControl size="small" sx={{ minWidth: 120 }}>
+                    <InputLabel>Gender</InputLabel>
+                    <Select 
+                        value={filterGender} 
+                        onChange={(e) => setFilterGender(e.target.value)} 
+                        label="Gender"
+                    >
+                        <MenuItem value="">All</MenuItem>
+                        <MenuItem value="Male">Male</MenuItem>
+                        <MenuItem value="Female">Female</MenuItem>
+                        <MenuItem value="Other">Other</MenuItem>
+                    </Select>
+                </FormControl>
+
+                <FormControl size="small" sx={{ minWidth: 130 }}>
+                    <InputLabel>Status</InputLabel>
+                    <Select 
+                        value={filterStatus} 
+                        onChange={(e) => setFilterStatus(e.target.value)} 
+                        label="Status"
+                    >
+                        <MenuItem value="">All</MenuItem>
+                        <MenuItem value="Active">Active</MenuItem>
+                        <MenuItem value="Inactive">Inactive</MenuItem>
+                    </Select>
+                </FormControl>
+
+                <MedievalButton 
+                    onClick={() => {
+                        setSearchTerm('');
+                        setFilterRole('');
+                        setFilterGender('');
+                        setFilterStatus('');
+                    }}
+                    sx={{ minWidth: 100 }}
+                >
+                    Clear
+                </MedievalButton>
+
+                <MedievalButton 
                     variant="contained" 
                     goldAccent
                     startIcon={<AddIcon />}
                     onClick={handleOpenAddModal}
-                    sx={{ flex: 0, whiteSpace: 'nowrap', minWidth: '140px' }}
+                    sx={{ whiteSpace: 'nowrap' }}
                 >
                     Add User
                 </MedievalButton>
@@ -483,7 +607,7 @@ function UsersPage() {
                 },
             }}>
                 <DataGrid
-                    rows={rows}
+                    rows={filteredRows}
                     columns={columns}
                     initialState={{
                         pagination: {
@@ -551,6 +675,8 @@ function UsersPage() {
                                     type="number"
                                     value={formData.age}
                                     onChange={handleInputChange}
+                                    error={!!errors.age}
+                                    helperText={errors.age}
                                     sx={{ flex: 1 }}
                                 />
                                 <FormControl fullWidth sx={{ flex: 1 }}>
@@ -575,6 +701,8 @@ function UsersPage() {
                                     label="Contact Number"
                                     value={formData.contactNumber}
                                     onChange={handleInputChange}
+                                    error={!!errors.contactNumber}
+                                    helperText={errors.contactNumber}
                                     sx={{ flex: 1 }}
                                 />
                                 <MedievalTextField
@@ -610,6 +738,8 @@ function UsersPage() {
                                     value={formData.username}
                                     onChange={handleInputChange}
                                     required
+                                    error={!!errors.username}
+                                    helperText={errors.username}
                                     sx={{ flex: 1 }}
                                 />
                             </Stack>
@@ -622,6 +752,8 @@ function UsersPage() {
                                 value={formData.password}
                                 onChange={handleInputChange}
                                 required
+                                error={!!errors.password}
+                                helperText={errors.password || 'Minimum 8 characters'}
                                 fullWidth
                                 InputProps={{
                                     endAdornment: (
