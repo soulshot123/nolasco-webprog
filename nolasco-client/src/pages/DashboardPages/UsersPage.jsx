@@ -327,6 +327,19 @@ function UsersPage() {
     const [filterGender, setFilterGender] = useState('');
     const [filterStatus, setFilterStatus] = useState('');
 
+    // Options for dropdowns should reflect what exists in the dataset,
+    // otherwise the user can select a value that matches no rows.
+    const availableRoles = Array.from(
+        new Set(rows.map(r => r.role).filter(Boolean))
+    ).sort();
+
+    const availableGenders = Array.from(
+        new Set(rows.map(r => r.gender).filter(Boolean))
+    ).sort();
+
+
+
+
     // Form validation state
     const [errors, setErrors] = useState({});
 
@@ -408,20 +421,32 @@ function UsersPage() {
     };
 
 const handleOpenAddModal = () => setOpenAddModal(true);
+
     // Filtered rows computation
+    const normalize = (v) => (typeof v === 'string' ? v.trim().toLowerCase() : '');
+
     const filteredRows = rows.filter((row) => {
-        const matchesSearch = !searchTerm || 
-            row.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            row.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            row.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            row.username?.toLowerCase().includes(searchTerm.toLowerCase());
+        const st = normalize(searchTerm);
 
-        const matchesRole = !filterRole || row.role === filterRole;
-        const matchesGender = !filterGender || row.gender === filterGender;
-        const matchesStatus = !filterStatus || row.status === filterStatus;
+        const matchesSearch =
+            !st ||
+            normalize(row.firstName).includes(st) ||
+            normalize(row.lastName).includes(st) ||
+            normalize(row.email).includes(st) ||
+            normalize(row.username).includes(st);
 
+const matchesRole =
+            !filterRole || normalize(row.role) === normalize(filterRole);
+const matchesGender = !filterGender || normalize(row.gender) === normalize(filterGender);
+        const matchesStatus = !filterStatus || normalize(row.status) === normalize(filterStatus);
+
+        // Keep Role strict. Apply Gender/Status only when their dropdown has a value.
+        // This prevents unexpected “broken” behavior when switching filters.
         return matchesSearch && matchesRole && matchesGender && matchesStatus;
     });
+
+
+
 
     const handleCloseAddModal = () => {
         setOpenAddModal(false);
@@ -517,17 +542,20 @@ const handleOpenAddModal = () => setOpenAddModal(true);
 
                 <FormControl size="small" sx={{ minWidth: 140 }}>
                     <InputLabel>Role</InputLabel>
-                    <Select 
-                        value={filterRole} 
-                        onChange={(e) => setFilterRole(e.target.value)} 
+                    <Select
+                        value={filterRole}
+                        onChange={(e) => {
+                            const nextRole = e.target.value;
+                            setFilterRole(nextRole);
+                        }}
                         label="Role"
                     >
                         <MenuItem value="">All Roles</MenuItem>
-                        <MenuItem value="Admin">Admin</MenuItem>
-                        <MenuItem value="User">User</MenuItem>
-                        <MenuItem value="Editor">Editor</MenuItem>
-                        <MenuItem value="Viewer">Viewer</MenuItem>
-                        <MenuItem value="Moderator">Moderator</MenuItem>
+                        {availableRoles.map((role) => (
+                            <MenuItem key={role} value={role}>
+                                {role}
+                            </MenuItem>
+                        ))}
                     </Select>
                 </FormControl>
 
@@ -539,18 +567,20 @@ const handleOpenAddModal = () => setOpenAddModal(true);
                         label="Gender"
                     >
                         <MenuItem value="">All</MenuItem>
-                        <MenuItem value="Male">Male</MenuItem>
-                        <MenuItem value="Female">Female</MenuItem>
-                        <MenuItem value="Other">Other</MenuItem>
+                        {availableGenders.map((gender) => (
+                            <MenuItem key={gender} value={gender}>
+                                {gender}
+                            </MenuItem>
+                        ))}
                     </Select>
                 </FormControl>
 
-                <FormControl size="small" sx={{ minWidth: 130 }}>
-                    <InputLabel>Status</InputLabel>
+                <FormControl size="small" sx={{ minWidth: 160 }}>
+                    <InputLabel>Active Status</InputLabel>
                     <Select 
                         value={filterStatus} 
                         onChange={(e) => setFilterStatus(e.target.value)} 
-                        label="Status"
+                        label="Active Status"
                     >
                         <MenuItem value="">All</MenuItem>
                         <MenuItem value="Active">Active</MenuItem>
@@ -558,17 +588,7 @@ const handleOpenAddModal = () => setOpenAddModal(true);
                     </Select>
                 </FormControl>
 
-                <MedievalButton 
-                    onClick={() => {
-                        setSearchTerm('');
-                        setFilterRole('');
-                        setFilterGender('');
-                        setFilterStatus('');
-                    }}
-                    sx={{ minWidth: 100 }}
-                >
-                    Clear
-                </MedievalButton>
+
 
 
 
@@ -615,6 +635,25 @@ const handleOpenAddModal = () => setOpenAddModal(true);
                 <DataGrid
                     rows={filteredRows}
                     columns={columns}
+                    getRowId={(row) => row.id}
+                    components={{
+                        NoRowsOverlay: () => (
+                            <Box
+                                sx={{
+                                    height: '100%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    p: 2,
+                                    fontFamily: "'Cinzel', serif",
+                                    color: themeColors.iron,
+                                }}
+                            >
+                                No matches for the selected filters.
+                            </Box>
+                        ),
+                    }}
+
                     paginationModel={{ 
                         pageSize: 10 
                     }}
@@ -729,9 +768,14 @@ const handleOpenAddModal = () => setOpenAddModal(true);
                                         onChange={handleInputChange}
                                         required
                                     >
-                                        <MenuItem value="admin">Admin</MenuItem>
-                                        <MenuItem value="user">User</MenuItem>
-                                        <MenuItem value="moderator">Moderator</MenuItem>
+                                        {availableRoles
+                                            .map((r) => r.toLowerCase())
+                                            .filter((role, idx, arr) => arr.indexOf(role) === idx)
+                                            .map((role) => (
+                                                <MenuItem key={role} value={role}>
+                                                    {role.charAt(0).toUpperCase() + role.slice(1)}
+                                                </MenuItem>
+                                            ))}
                                     </Select>
                                 </FormControl>
                                 <MedievalTextField
