@@ -56,8 +56,15 @@ const dashboardNavItems = [
         to: '/dashboard/users',
         icon: <PeopleIcon />,
     },
+    {
+        label: 'Articles',
+        title: 'Articles',
+        to: '/dashboard/articles',
+        icon: <AssessmentIcon />,
+    },
 
 ];
+
 
 const openedMixin = (theme) => ({
     width: drawerWidth,
