@@ -730,8 +730,8 @@ const handleOpenAddModal = () => setOpenAddModal(true);
                                         required
                                     >
                                         <MenuItem value="admin">Admin</MenuItem>
-                                        <MenuItem value="user">User</MenuItem>
-                                        <MenuItem value="moderator">Moderator</MenuItem>
+                                        <MenuItem value="editor">Editor</MenuItem>
+                                        <MenuItem value="viewer">Viewer</MenuItem>
                                     </Select>
                                 </FormControl>
                                 <MedievalTextField
