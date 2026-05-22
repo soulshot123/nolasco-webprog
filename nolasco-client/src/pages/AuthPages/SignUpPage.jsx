@@ -1,17 +1,99 @@
 import { useState } from 'react';
+
 import { NavLink } from 'react-router-dom';
 import Button from '../../components/Button';
+import { createUser } from '../services/UserService';
+
+const ROLES = [
+    { label: 'Admin', value: 'admin' },
+    { label: 'Viewer', value: 'viewer' },
+];
+
 
 const SignUpPage = () => {
-    const [name, setName] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [age, setAge] = useState('');
+    const [gender, setGender] = useState('');
+
     const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
+
+    const [address, setAddress] = useState('');
+
+    // Admin-controlled field in dashboard (remove toggle from signup)
+    const isActive = true;
+
     const [password, setPassword] = useState('');
+
+
     const [confirmPassword, setConfirmPassword] = useState('');
 
-    const handleSubmit = (e) => {
+    const [submitting, setSubmitting] = useState(false);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
+
+    const roleToBackendType = 'admin';
+
+
+    const validate = () => {
+        const nextErrors = [];
+
+        if (!firstName.trim()) nextErrors.push('First name is required.');
+        if (!lastName.trim()) nextErrors.push('Last name is required.');
+        if (!age || Number.isNaN(Number(age)) || Number(age) <= 0) nextErrors.push('Age must be a positive number.');
+        if (!gender) nextErrors.push('Gender is required.');
+        if (!email.trim()) nextErrors.push('Email is required.');
+        if (!username.trim()) nextErrors.push('Username is required.');
+        if (!address.trim()) nextErrors.push('Address is required.');
+
+        if (!password) nextErrors.push('Password is required.');
+        if (password && password.length < 8) nextErrors.push('Password must be at least 8 characters.');
+        if (confirmPassword !== password) nextErrors.push('Passwords do not match.');
+
+        return nextErrors;
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // TODO: wire up auth logic
-        console.log({ name, email, password, confirmPassword });
+        setError('');
+        setSuccess('');
+
+        const errors = validate();
+        if (errors.length) {
+            setError(errors[0]);
+            return;
+        }
+
+        setSubmitting(true);
+        try {
+            const payload = {
+                firstName: firstName.trim(),
+                lastName: lastName.trim(),
+                age: String(age),
+                gender,
+                email: email.trim(),
+                username: username.trim(),
+                password,
+                address: address.trim(),
+                type: roleToBackendType,
+                isActive: true,
+            };
+
+
+
+            await createUser(payload);
+            setSuccess('Account created successfully. You can sign in now.');
+
+            // Optionally: keep the form values; UX choice.
+            setPassword('');
+            setConfirmPassword('');
+        } catch (err) {
+            const message = err?.response?.data?.message || 'Failed to create account.';
+            setError(message);
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     return (
@@ -35,31 +117,103 @@ const SignUpPage = () => {
                 </div>
 
                 <div className="mb-8 text-center">
-                    <h1 className="text-3xl font-black text-knight-ink drop-shadow-lg">
-                        Join the Order
-                    </h1>
+                    <h1 className="text-3xl font-black text-knight-ink drop-shadow-lg">Join the Order</h1>
                     <p className="mt-2 text-xs font-semibold uppercase tracking-[0.25em] gold-accent">
                         Create your knight forge account
                     </p>
                 </div>
 
+                {error ? (
+                    <div className="mb-4 rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800">
+                        {error}
+                    </div>
+                ) : null}
+                {success ? (
+                    <div className="mb-4 rounded-xl border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-800">
+                        {success}
+                    </div>
+                ) : null}
+
                 <form onSubmit={handleSubmit} className="space-y-5">
+
+                    {/* Name Row */}
+
                     <div>
                         <label
-                            htmlFor="name"
+                            htmlFor="firstName"
                             className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.24em] text-zinc-600"
                         >
-                            Full Name
+                            First Name
                         </label>
                         <input
-                            id="name"
+                            id="firstName"
                             type="text"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
                             required
                             className="w-full rounded-full border-2 border-zinc-900 bg-white px-5 py-3 text-sm text-knight-ink outline-none transition focus:border-knight-gold focus:ring-2 focus:ring-knight-gold/40"
                             placeholder="Sir Galahad"
                         />
+                    </div>
+
+                    <div>
+                        <label
+                            htmlFor="lastName"
+                            className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.24em] text-zinc-600"
+                        >
+                            Last Name
+                        </label>
+                        <input
+                            id="lastName"
+                            type="text"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                            required
+                            className="w-full rounded-full border-2 border-zinc-900 bg-white px-5 py-3 text-sm text-knight-ink outline-none transition focus:border-knight-gold focus:ring-2 focus:ring-knight-gold/40"
+                            placeholder="of Camelot"
+                        />
+                    </div>
+
+                    <div>
+                        <label
+                            htmlFor="age"
+                            className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.24em] text-zinc-600"
+                        >
+                            Age
+                        </label>
+                        <input
+                            id="age"
+                            type="number"
+                            value={age}
+                            onChange={(e) => setAge(e.target.value)}
+                            required
+                            min={1}
+                            className="w-full rounded-full border-2 border-zinc-900 bg-white px-5 py-3 text-sm text-knight-ink outline-none transition focus:border-knight-gold focus:ring-2 focus:ring-knight-gold/40"
+                            placeholder="25"
+                        />
+                    </div>
+
+                    <div>
+                        <label
+                            htmlFor="gender"
+                            className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.24em] text-zinc-600"
+                        >
+                            Gender
+                        </label>
+                        <select
+                            id="gender"
+                            value={gender}
+                            onChange={(e) => setGender(e.target.value)}
+                            required
+                            className="w-full rounded-full border-2 border-zinc-900 bg-white px-5 py-3 text-sm text-knight-ink outline-none transition focus:border-knight-gold focus:ring-2 focus:ring-knight-gold/40"
+                        >
+                            <option value="" disabled>
+                                Select...
+                            </option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
                     </div>
 
                     <div>
@@ -79,6 +233,46 @@ const SignUpPage = () => {
                             placeholder="knight@forge.com"
                         />
                     </div>
+
+                    <div>
+                        <label
+                            htmlFor="username"
+                            className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.24em] text-zinc-600"
+                        >
+                            Username
+                        </label>
+                        <input
+                            id="username"
+                            type="text"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            required
+                            className="w-full rounded-full border-2 border-zinc-900 bg-white px-5 py-3 text-sm text-knight-ink outline-none transition focus:border-knight-gold focus:ring-2 focus:ring-knight-gold/40"
+                            placeholder="knight123"
+                        />
+                    </div>
+
+                    <div>
+                        <label
+                            htmlFor="address"
+                            className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.24em] text-zinc-600"
+                        >
+                            Address
+                        </label>
+                        <input
+                            id="address"
+                            type="text"
+                            value={address}
+                            onChange={(e) => setAddress(e.target.value)}
+                            required
+                            className="w-full rounded-full border-2 border-zinc-900 bg-white px-5 py-3 text-sm text-knight-ink outline-none transition focus:border-knight-gold focus:ring-2 focus:ring-knight-gold/40"
+                            placeholder="Royal District, Block A"
+                        />
+                    </div>
+
+
+
+
 
                     <div>
                         <label
@@ -117,8 +311,8 @@ const SignUpPage = () => {
                     </div>
 
                     <div className="pt-2">
-                        <Button type="submit" variant="primary" className="w-full">
-                            Sign Up
+                        <Button type="submit" variant="primary" className="w-full" disabled={submitting}>
+                            {submitting ? 'Creating...' : 'Sign Up'}
                         </Button>
                     </div>
                 </form>
@@ -126,10 +320,7 @@ const SignUpPage = () => {
                 <div className="mt-6 border-t border-zinc-200 pt-6 text-center">
                     <p className="text-sm text-zinc-600">
                         Already a member of the order?{' '}
-                        <NavLink
-                            to="/signin"
-                            className="font-bold text-knight-gold hover:underline"
-                        >
+                        <NavLink to="/signin" className="font-bold text-knight-gold hover:underline">
                             Sign In
                         </NavLink>
                     </p>
@@ -140,4 +331,6 @@ const SignUpPage = () => {
 };
 
 export default SignUpPage;
+
+
 
