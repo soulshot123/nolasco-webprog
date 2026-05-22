@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+
+
 import { DataGrid } from '@mui/x-data-grid';
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
@@ -290,8 +292,34 @@ const columns = [
 
 
 
+import { useNavigate } from 'react-router-dom';
+import { createUser } from '../services/UserService';
+
+
 function UsersPage() {
+
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        const userType = localStorage.getItem('userType');
+
+        if (!token) {
+            navigate('/signin');
+            return;
+        }
+
+        // Editors/Admin/Moderator can access. Viewers are blocked.
+        const allowed = new Set(['editor', 'admin', 'moderator']);
+        if (userType && !allowed.has(userType)) {
+            navigate('/dashboard');
+        }
+    }, [navigate]);
+
+
     const [rows, setRows] = useState(usersData.map((user, index) => ({
+
+
         id: index + 1,
         firstName: user.firstName,
         lastName: user.lastName,
@@ -365,8 +393,9 @@ function UsersPage() {
         }
     };
 
-    const handleAddUser = (e) => {
+    const handleAddUser = async (e) => {
         e.preventDefault();
+
         if (!validateForm()) {
             alert('Please fix the errors below.');
             return;
@@ -376,19 +405,42 @@ function UsersPage() {
             return;
         }
 
-        const newUser = {
-            id: rows.length + 1,
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            email: formData.email,
-            username: formData.username,
-            gender: formData.gender,
-            role: formData.role.charAt(0).toUpperCase() + formData.role.slice(1),
-            status: formData.isActive ? 'Active' : 'Inactive',
-            lastLogin: new Date().toISOString().split('T')[0] + ' 14:30',
-            avatar: `https://i.pravatar.cc/150?img=${Math.floor(Math.random() * 70) + 1}`
-        };
-        setRows(prev => [newUser, ...prev]);
+        try {
+            const payload = {
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                age: formData.age ? String(formData.age) : '18',
+                gender: formData.gender,
+                email: formData.email,
+                username: formData.username,
+                password: formData.password,
+                address: formData.address,
+                type: formData.role,
+                isActive: formData.isActive,
+            };
+
+            await createUser(payload);
+
+            // Keep existing UI behavior: add to grid immediately
+            const newUser = {
+                id: rows.length + 1,
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                email: formData.email,
+                username: formData.username,
+                gender: formData.gender,
+                role: formData.role.charAt(0).toUpperCase() + formData.role.slice(1),
+                status: formData.isActive ? 'Active' : 'Inactive',
+                lastLogin: new Date().toISOString().split('T')[0] + ' 14:30',
+                avatar: `https://i.pravatar.cc/150?img=${Math.floor(Math.random() * 70) + 1}`,
+            };
+            setRows(prev => [newUser, ...prev]);
+        } catch (err) {
+            const message = err?.response?.data?.message || 'Failed to create account.';
+            alert(message);
+            return;
+        }
+
         setFormData({
             firstName: '',
             lastName: '',

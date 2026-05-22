@@ -4,6 +4,7 @@ import DashArticleTable from '../../components/DashArticleTable';
 import articles from '../../assets/data/article-content.js';
 
 // Medieval Knight Theme Colors (kept consistent with UsersPage)
+
 const themeColors = {
   gold: '#D4AF37',
   silver: '#C0C0C0',
@@ -97,20 +98,24 @@ const StatLabel = ({ children, ...props }) => (
 );
 
 function DashArticleListPage() {
-  const totalArticles = articles?.length ?? 0;
+  const normalizedArticles = Array.isArray(articles) ? articles : [];
+  const totalArticles = normalizedArticles.length;
   const featuredCount = Math.min(totalArticles, 8);
 
   return (
     <Box
       sx={{
-        background: 'linear-gradient(135deg, rgba(247,244,227,0.95) 0%, rgba(237,228,217,0.95) 100%)',
+        background:
+          'linear-gradient(135deg, rgba(247,244,227,0.95) 0%, rgba(237,228,217,0.95) 100%)',
         padding: '24px',
         borderRadius: '12px',
         border: `2px solid ${themeColors.iron}`,
         boxShadow: 'inset 0 0 30px rgba(212,175,55,0.1)',
       }}
     >
-      <StyledTitle variant="h4">📜 Article Library 📜</StyledTitle>
+      <StyledTitle variant="h4">
+        <span>⚔ Article Registry ⚔</span>
+      </StyledTitle>
 
       <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} sx={{ mb: 4 }}>
         <StyledCard sx={{ flex: 1, minWidth: 150 }} goldAccent>
@@ -168,6 +173,4 @@ function DashArticleListPage() {
 }
 
 export default DashArticleListPage;
-
-
 

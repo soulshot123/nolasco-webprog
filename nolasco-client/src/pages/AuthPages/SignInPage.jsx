@@ -1,16 +1,50 @@
 import { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 
+import { loginUser } from '../services/UserService';
+
 const SignInPage = () => {
+    const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [submitting, setSubmitting] = useState(false);
+    const [error, setError] = useState('');
 
-    const handleSubmit = (e) => {
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // TODO: wire up auth logic
-        console.log({ email, password });
+        setError('');
+        setSubmitting(true);
+
+        try {
+            const res = await loginUser({ email, password });
+            const { token, type, firstName } = res?.data ?? {};
+
+            if (!token) {
+                setError('Login failed: missing token.');
+                return;
+            }
+
+            // Block viewers from logging in
+            if (type === 'viewer') {
+                setError('Viewer accounts are not allowed to sign in.');
+                return;
+            }
+
+            localStorage.setItem('token', token);
+            localStorage.setItem('userType', type);
+            if (firstName) localStorage.setItem('firstName', firstName);
+
+            navigate('/dashboard');
+        } catch (err) {
+            const message = err?.response?.data?.message || 'Failed to sign in.';
+            setError(message);
+        } finally {
+            setSubmitting(false);
+        }
     };
+
 
     return (
         <div className="w-full max-w-md">
@@ -41,8 +75,16 @@ const SignInPage = () => {
                     </p>
                 </div>
 
+                {error ? (
+                    <div className="mb-4 rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800">
+                        {error}
+                    </div>
+                ) : null}
+
+
                 <form onSubmit={handleSubmit} className="space-y-5">
                     <div>
+
                         <label
                             htmlFor="email"
                             className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.24em] text-zinc-600"
@@ -79,8 +121,8 @@ const SignInPage = () => {
                     </div>
 
                     <div className="pt-2">
-                        <Button type="submit" variant="primary" className="w-full">
-                            Sign In
+                        <Button type="submit" variant="primary" className="w-full" disabled={submitting}>
+                            {submitting ? 'Signing in...' : 'Sign In'}
                         </Button>
                     </div>
                 </form>
