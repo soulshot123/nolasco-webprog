@@ -4,12 +4,6 @@ import { NavLink } from 'react-router-dom';
 import Button from '../../components/Button';
 import { createUser } from '../services/UserService';
 
-const ROLES = [
-    { label: 'Admin', value: 'admin' },
-    { label: 'Viewer', value: 'viewer' },
-];
-
-
 const SignUpPage = () => {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
@@ -18,11 +12,9 @@ const SignUpPage = () => {
 
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
+    const [role, setRole] = useState('viewer');
 
     const [address, setAddress] = useState('');
-
-    // Admin-controlled field in dashboard (remove toggle from signup)
-    const isActive = true;
 
     const [password, setPassword] = useState('');
 
@@ -33,9 +25,6 @@ const SignUpPage = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
-    const roleToBackendType = 'admin';
-
-
     const validate = () => {
         const nextErrors = [];
 
@@ -45,6 +34,7 @@ const SignUpPage = () => {
         if (!gender) nextErrors.push('Gender is required.');
         if (!email.trim()) nextErrors.push('Email is required.');
         if (!username.trim()) nextErrors.push('Username is required.');
+        if (!role) nextErrors.push('Role is required.');
         if (!address.trim()) nextErrors.push('Address is required.');
 
         if (!password) nextErrors.push('Password is required.');
@@ -76,7 +66,7 @@ const SignUpPage = () => {
                 username: username.trim(),
                 password,
                 address: address.trim(),
-                type: roleToBackendType,
+                type: role,
                 isActive: true,
             };
 
@@ -273,6 +263,26 @@ const SignUpPage = () => {
 
 
 
+
+                    <div>
+                        <label
+                            htmlFor="role"
+                            className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.24em] text-zinc-600"
+                        >
+                            Role
+                        </label>
+                        <select
+                            id="role"
+                            value={role}
+                            onChange={(e) => setRole(e.target.value)}
+                            required
+                            className="w-full rounded-full border-2 border-zinc-900 bg-white px-5 py-3 text-sm text-knight-ink outline-none transition focus:border-knight-gold focus:ring-2 focus:ring-knight-gold/40"
+                        >
+                            <option value="viewer">Viewer</option>
+                            <option value="editor">Editor</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
 
                     <div>
                         <label

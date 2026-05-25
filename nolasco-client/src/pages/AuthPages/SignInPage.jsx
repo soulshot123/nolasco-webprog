@@ -26,14 +26,14 @@ const SignInPage = () => {
                 return;
             }
 
-            // Block viewers from logging in
-            if (type === 'viewer') {
-                setError('Viewer accounts are not allowed to sign in.');
+            const userType = type?.replace(',', '');
+            if (userType === 'viewer') {
+                setError('Viewer accounts are not allowed to sign in to the dashboard.');
                 return;
             }
 
             localStorage.setItem('token', token);
-            localStorage.setItem('userType', type);
+            localStorage.setItem('userType', userType);
             if (firstName) localStorage.setItem('firstName', firstName);
 
             navigate('/dashboard');

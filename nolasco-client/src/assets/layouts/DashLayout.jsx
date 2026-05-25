@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTheme, styled, alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -157,14 +157,24 @@ const Search = styled('div')(({ theme }) => ({
     },
 }));
 
-const getPageTitle = (pathname) =>
-    dashboardNavItems.find(({ to }) => to === pathname)?.title ?? 'Welcome';
 const DashLayout = () => {
     const theme = useTheme();
     const [open, setOpen] = useState(false);
     const location = useLocation();
-    const pageTitle = getPageTitle(location.pathname);
     const navigate = useNavigate();
+    const userType = localStorage.getItem('userType')?.replace(',', '');
+    const visibleNavItems = useMemo(
+        () => dashboardNavItems.filter(({ label }) => label !== 'Users' || ['admin', 'moderator'].includes(userType)),
+        [userType]
+    );
+    const pageTitle = visibleNavItems.find(({ to }) => to === location.pathname)?.title ?? 'Welcome';
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (!token || userType === 'viewer') {
+            navigate('/signin');
+        }
+    }, [navigate, userType]);
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -174,6 +184,9 @@ const DashLayout = () => {
     };
     
     const handleLogout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('userType');
+        localStorage.removeItem('firstName');
         navigate('/');
     };
 
@@ -226,7 +239,7 @@ return (
                 </DrawerHeader>
                 <Divider />
                 <List>
-                    {dashboardNavItems.map(({ label, to }) => (
+                    {visibleNavItems.map(({ label, to }) => (
                         <ListItem key={to} disablePadding sx={{ display: 'block' }}>
                             <ListItemButton
                                 component={Link}

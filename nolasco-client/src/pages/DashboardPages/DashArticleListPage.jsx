@@ -1,7 +1,20 @@
-import React from 'react';
-import { Box, Stack, Card, CardContent, Typography } from '@mui/material';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import {
+  Box,
+  Stack,
+  Card,
+  CardContent,
+  Typography,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
+} from '@mui/material';
 import DashArticleTable from '../../components/DashArticleTable';
-import articles from '../../assets/data/article-content.js';
+import { getArticles, saveDashboardArticle } from '../../utils/articles.js';
 
 // Medieval Knight Theme Colors (kept consistent with UsersPage)
 
@@ -98,9 +111,59 @@ const StatLabel = ({ children, ...props }) => (
 );
 
 function DashArticleListPage() {
+  const [articles, setArticles] = useState(() => getArticles());
+  const [openAddModal, setOpenAddModal] = useState(false);
+  const [formData, setFormData] = useState({
+    title: '',
+    image: '',
+    details: '',
+  });
+  const [errors, setErrors] = useState({});
   const normalizedArticles = Array.isArray(articles) ? articles : [];
   const totalArticles = normalizedArticles.length;
   const featuredCount = Math.min(totalArticles, 8);
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const handleCloseAddModal = () => {
+    setOpenAddModal(false);
+    setFormData({ title: '', image: '', details: '' });
+    setErrors({});
+  };
+
+  const handleAddArticle = (event) => {
+    event.preventDefault();
+
+    const nextErrors = {};
+    if (!formData.title.trim()) nextErrors.title = 'Title is required';
+    if (!formData.image.trim()) nextErrors.image = 'Image URL is required';
+    if (!formData.details.trim()) nextErrors.details = 'Text details are required';
+
+    if (Object.keys(nextErrors).length) {
+      setErrors(nextErrors);
+      return;
+    }
+
+    const content = formData.details
+      .split(/\n{2,}/)
+      .map((paragraph) => paragraph.trim())
+      .filter(Boolean);
+
+    const newArticle = saveDashboardArticle({
+      title: formData.title.trim(),
+      image: formData.image.trim(),
+      content,
+    });
+
+    setArticles((prev) => [newArticle, ...prev]);
+    handleCloseAddModal();
+  };
 
   return (
     <Box
@@ -116,6 +179,28 @@ function DashArticleListPage() {
       <StyledTitle variant="h4">
         <span>⚔ Article Registry ⚔</span>
       </StyledTitle>
+
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 3 }} alignItems={{ sm: 'center' }}>
+        <Typography sx={{ color: themeColors.ink, flex: 1 }}>
+          These dashboard records use the same article collection displayed on the public article list.
+        </Typography>
+        <Button
+          component={Link}
+          to="/articles"
+          variant="contained"
+          sx={{
+            background: `linear-gradient(135deg, ${themeColors.gold}, #B8962E)`,
+            border: `2px solid ${themeColors.gold}`,
+            color: themeColors.ink,
+            fontWeight: 800,
+            '&:hover': {
+              background: `linear-gradient(135deg, #E5C04B, ${themeColors.gold})`,
+            },
+          }}
+        >
+          Open ArticleListPage
+        </Button>
+      </Stack>
 
       <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} sx={{ mb: 4 }}>
         <StyledCard sx={{ flex: 1, minWidth: 150 }} goldAccent>
@@ -147,7 +232,89 @@ function DashArticleListPage() {
         </StyledCard>
       </Stack>
 
-      <DashArticleTable articles={articles} />
+      <DashArticleTable articles={articles} onAddArticle={() => setOpenAddModal(true)} />
+
+      <Dialog
+        open={openAddModal}
+        onClose={handleCloseAddModal}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{
+          sx: {
+            border: `2px solid ${themeColors.gold}`,
+            borderRadius: '12px',
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            fontFamily: "'Cinzel', serif",
+            fontWeight: 700,
+            background: `linear-gradient(135deg, ${themeColors.gold}, #B8962E)`,
+            color: themeColors.parchment,
+            borderBottom: `2px solid ${themeColors.iron}`,
+          }}
+        >
+          Add Article
+        </DialogTitle>
+        <form onSubmit={handleAddArticle}>
+          <DialogContent sx={{ p: 4 }}>
+            <Stack spacing={3}>
+              <TextField
+                name="title"
+                label="Title"
+                value={formData.title}
+                onChange={handleInputChange}
+                error={!!errors.title}
+                helperText={errors.title}
+                required
+                fullWidth
+              />
+              <TextField
+                name="image"
+                label="Image URL"
+                value={formData.image}
+                onChange={handleInputChange}
+                error={!!errors.image}
+                helperText={errors.image}
+                required
+                fullWidth
+              />
+              <TextField
+                name="details"
+                label="Text Details"
+                value={formData.details}
+                onChange={handleInputChange}
+                error={!!errors.details}
+                helperText={errors.details || 'Use blank lines to separate paragraphs.'}
+                required
+                multiline
+                minRows={6}
+                fullWidth
+              />
+            </Stack>
+          </DialogContent>
+          <DialogActions sx={{ p: 3, borderTop: `1px solid ${themeColors.iron}` }}>
+            <Button onClick={handleCloseAddModal} variant="outlined">
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{
+                background: `linear-gradient(135deg, ${themeColors.gold}, #B8962E)`,
+                color: themeColors.ink,
+                fontWeight: 800,
+                '&:hover': {
+                  background: `linear-gradient(135deg, #E5C04B, ${themeColors.gold})`,
+                },
+              }}
+            >
+              Save Article
+            </Button>
+          </DialogActions>
+        </form>
+      </Dialog>
 
       <Box
         sx={{

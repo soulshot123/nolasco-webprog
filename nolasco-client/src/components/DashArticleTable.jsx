@@ -15,6 +15,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import EditIcon from '@mui/icons-material/Edit';
 import BlockIcon from '@mui/icons-material/Block';
 
+
 const themeColors = {
   gold: '#D4AF37',
   silver: '#C0C0C0',
@@ -24,9 +25,10 @@ const themeColors = {
   ink: '#2D1B0F',
 };
 
+
 const slugifyPreview = (s) => String(s ?? '').trim().replace(/\s+/g, '-').toLowerCase();
 
-function DashArticleTable({ articles }) {
+function DashArticleTable({ articles, onAddArticle }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [pageSize, setPageSize] = useState(10);
@@ -228,10 +230,7 @@ function DashArticleTable({ articles }) {
             },
             fontWeight: 800,
           }}
-          onClick={() => {
-            // GUI-only: hook create modal here
-            console.log('Add article');
-          }}
+          onClick={onAddArticle}
         >
           Add Article
         </Button>

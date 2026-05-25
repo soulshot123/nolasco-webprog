@@ -302,15 +302,14 @@ function UsersPage() {
 
     useEffect(() => {
         const token = localStorage.getItem('token');
-        const userType = localStorage.getItem('userType');
+        const userType = localStorage.getItem('userType')?.replace(',', '');
 
         if (!token) {
             navigate('/signin');
             return;
         }
 
-        // Editors/Admin/Moderator can access. Viewers are blocked.
-        const allowed = new Set(['editor', 'admin', 'moderator']);
+        const allowed = new Set(['admin', 'moderator']);
         if (userType && !allowed.has(userType)) {
             navigate('/dashboard');
         }
@@ -348,6 +347,7 @@ function UsersPage() {
         isActive: true
     });
     const [showPassword, setShowPassword] = useState(false);
+    const [submittingUser, setSubmittingUser] = useState(false);
 
     // Search & Filter state
     const [searchTerm, setSearchTerm] = useState('');
@@ -365,7 +365,7 @@ function UsersPage() {
             newErrors.password = 'Password must be at least 8 characters';
         }
 
-        if (formData.contactNumber && /^\\d{11}$/.test(formData.contactNumber)) {
+        if (formData.contactNumber && !/^\d{11}$/.test(formData.contactNumber)) {
             newErrors.contactNumber = 'Contact number must be exactly 11 digits';
         }
 
@@ -400,11 +400,12 @@ function UsersPage() {
             alert('Please fix the errors below.');
             return;
         }
-        if (!formData.firstName || !formData.lastName || !formData.email || !formData.role || !formData.username || !formData.password) {
+        if (!formData.firstName || !formData.lastName || !formData.age || !formData.gender || !formData.email || !formData.role || !formData.username || !formData.password || !formData.address) {
             alert('Please fill in all required fields.');
             return;
         }
 
+        setSubmittingUser(true);
         try {
             const payload = {
                 firstName: formData.firstName,
@@ -419,18 +420,18 @@ function UsersPage() {
                 isActive: formData.isActive,
             };
 
-            await createUser(payload);
+            const res = await createUser(payload);
+            const createdUser = res?.data?.user;
 
-            // Keep existing UI behavior: add to grid immediately
             const newUser = {
-                id: rows.length + 1,
-                firstName: formData.firstName,
-                lastName: formData.lastName,
-                email: formData.email,
-                username: formData.username,
-                gender: formData.gender,
-                role: formData.role.charAt(0).toUpperCase() + formData.role.slice(1),
-                status: formData.isActive ? 'Active' : 'Inactive',
+                id: createdUser?._id || Math.max(0, ...rows.map((row) => Number(row.id) || 0)) + 1,
+                firstName: createdUser?.firstName || formData.firstName,
+                lastName: createdUser?.lastName || formData.lastName,
+                email: createdUser?.email || formData.email,
+                username: createdUser?.username || formData.username,
+                gender: createdUser?.gender || formData.gender,
+                role: (createdUser?.type || formData.role).charAt(0).toUpperCase() + (createdUser?.type || formData.role).slice(1),
+                status: (createdUser?.isActive ?? formData.isActive) ? 'Active' : 'Inactive',
                 lastLogin: new Date().toISOString().split('T')[0] + ' 14:30',
                 avatar: `https://i.pravatar.cc/150?img=${Math.floor(Math.random() * 70) + 1}`,
             };
@@ -439,6 +440,8 @@ function UsersPage() {
             const message = err?.response?.data?.message || 'Failed to create account.';
             alert(message);
             return;
+        } finally {
+            setSubmittingUser(false);
         }
 
         setFormData({
@@ -865,9 +868,10 @@ const handleOpenAddModal = () => setOpenAddModal(true);
                             type="submit" 
                             goldAccent 
                             variant="contained" 
+                            disabled={submittingUser}
                             sx={{ flex: 1 }}
                         >
-                            Enlist Knight
+                            {submittingUser ? 'Saving...' : 'Enlist Knight'}
                         </MedievalButton>
                     </DialogActions>
                 </form>
