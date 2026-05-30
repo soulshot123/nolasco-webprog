@@ -17,6 +17,7 @@
     "@mui/x-charts": "^9.0.4",
     "@mui/x-data-grid": "^9.2.0",
     "@tailwindcss/vite": "^4.2.2",
+    "axios": "^1.16.1",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.2.1",
     "leaflet": "^1.9.4",
